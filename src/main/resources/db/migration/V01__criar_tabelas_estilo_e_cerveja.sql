@@ -7,6 +7,7 @@ create table cerveja (
 	codigo serial primary key,
 	sku varchar(50) not null,
 	nome varchar(80) not null,
+	descricao varchar(50) not null,
 	valor decimal(10,2) not null,
 	teor_alcoolico decimal(10,2) not null,
 	comissao decimal(10,2) not null,
