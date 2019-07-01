@@ -28,6 +28,11 @@
 		<hibernate-validator.version>6.0.17.Final</hibernate-validator.version>
 		
 		<thymeleaf-layout-dialect.version>2.4.1</thymeleaf-layout-dialect.version>
+		
+		<!-- Logging -->
+		<log4j.version>2.12.0</log4j.version>
+<!-- 		<jcl-over-slf4j.version>2.0.0-alpha0</jcl-over-slf4j.version> -->
+		<jcl-over-slf4j.version>1.7.26</jcl-over-slf4j.version>
 	</properties>
 
 	<build>
@@ -61,6 +66,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Servlet API -->
@@ -99,6 +110,29 @@
     		<artifactId>thymeleaf-layout-dialect</artifactId>
     		<version>${thymeleaf-layout-dialect.version}</version>
 		</dependency>
+
+		<!-- Logging -->
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-slf4j-impl</artifactId>
+    		<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-api</artifactId>
+    		<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.apache.logging.log4j</groupId>
+    		<artifactId>log4j-core</artifactId>
+    		<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.slf4j</groupId>
+    		<artifactId>jcl-over-slf4j</artifactId>
+    		<version>${jcl-over-slf4j.version}</version>
+		</dependency>
+		
 
 	</dependencies>
 
