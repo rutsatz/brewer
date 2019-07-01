@@ -18,6 +18,7 @@
 
 		<java.version>1.8</java.version>
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
+		<flyway-maven-plugin.version>4.0.2</flyway-maven-plugin.version>
 
 		<spring-framework.version>4.3.0.RELEASE</spring-framework.version>
 
@@ -26,13 +27,19 @@
 		<thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
 
 		<hibernate-validator.version>6.0.17.Final</hibernate-validator.version>
-		
+
 		<thymeleaf-layout-dialect.version>2.4.1</thymeleaf-layout-dialect.version>
-		
+
 		<!-- Logging -->
 		<log4j.version>2.12.0</log4j.version>
-<!-- 		<jcl-over-slf4j.version>2.0.0-alpha0</jcl-over-slf4j.version> -->
+		<!-- <jcl-over-slf4j.version>2.0.0-alpha0</jcl-over-slf4j.version> -->
 		<jcl-over-slf4j.version>1.7.26</jcl-over-slf4j.version>
+
+		<!-- JPA / Hibernate -->
+		<hibernate.version>5.1.0.Final</hibernate.version>
+
+		<!-- Postgresql Driver Connector -->
+		<postgresql-connector-java.version>42.2.6</postgresql-connector-java.version>
 	</properties>
 
 	<build>
@@ -45,6 +52,23 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>${flyway-maven-plugin.version}</version>
+				<configuration>
+					<driver>org.postgresql.Driver</driver>
+					<!-- <sqlMigrationSeparator>__</sqlMigrationSeparator> -->
+					<!-- <locations> -->
+					<!-- <location>filesystem:src/main/resources/flyway/migrations</location> -->
+					<!-- </locations> -->
+					<!-- <url>${database.url}</url> -->
+					<!-- <user>${database.user}</user> -->
+					<!-- <password>${databese.password}</password> -->
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
@@ -106,33 +130,57 @@
 
 		<!-- Thymeleaf - Layout Dialect -->
 		<dependency>
-    		<groupId>nz.net.ultraq.thymeleaf</groupId>
-    		<artifactId>thymeleaf-layout-dialect</artifactId>
-    		<version>${thymeleaf-layout-dialect.version}</version>
+			<groupId>nz.net.ultraq.thymeleaf</groupId>
+			<artifactId>thymeleaf-layout-dialect</artifactId>
+			<version>${thymeleaf-layout-dialect.version}</version>
 		</dependency>
 
 		<!-- Logging -->
 		<dependency>
-    		<groupId>org.apache.logging.log4j</groupId>
-    		<artifactId>log4j-slf4j-impl</artifactId>
-    		<version>${log4j.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.logging.log4j</groupId>
-    		<artifactId>log4j-api</artifactId>
-    		<version>${log4j.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.logging.log4j</groupId>
-    		<artifactId>log4j-core</artifactId>
-    		<version>${log4j.version}</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>jcl-over-slf4j</artifactId>
-    		<version>${jcl-over-slf4j.version}</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${jcl-over-slf4j.version}</version>
 		</dependency>
-		
+
+		<!-- JPA / Hibernate -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Hibernate - Java 8 Support -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-java8</artifactId>
+			<version>${hibernate.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Postgresql Driver Connector -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgresql-connector-java.version}</version>
+			<!-- <scope>provided</scope> -->
+		</dependency>
+
 
 	</dependencies>
 
