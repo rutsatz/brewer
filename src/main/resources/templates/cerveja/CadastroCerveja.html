@@ -88,6 +88,7 @@
 						<div>
 							<th:block th:each="origem : ${origens}">
 								<div class="radio radio-inline">
+<!-- 									| permite concatenar -->
 									<input th:id="|id_${origem}|" type="radio" th:value="${origem}" th:field="*{origem}">
 									<label th:for="|id_${origem}|" th:text="${origem.descricao}">Nacional</label>
 								</div>
@@ -128,6 +129,11 @@
 
 		<div th:replace="estilo/CadastroRapidoEstilo :: modal"></div>
 	</section>
+
+<!-- Substitui o conteúdo no rodapé do LayoutPadrao -->
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/estilo.cadastro-rapido.js}"></script>
+</th:block>
 
 </body>
 

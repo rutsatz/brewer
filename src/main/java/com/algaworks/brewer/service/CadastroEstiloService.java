@@ -17,13 +17,15 @@ public class CadastroEstiloService {
 	private Estilos estilos;
 
 	@Transactional
-	public void salvar(Estilo estilo) {
-		
+	public Estilo salvar(Estilo estilo) {
+
 		Optional<Estilo> estiloOptional = estilos.findByNomeIgnoreCase(estilo.getNome());
-		if(estiloOptional.isPresent()) {
+		if (estiloOptional.isPresent()) {
 			throw new NomeEstiloJaCadastradoException("Nome do estilo já cadastrado");
 		}
-		
-		estilos.save(estilo);
+
+		// Salva no banco e já adiciona o id no objeto. (O save somente persiste, mas
+		// como o id é auto increment, não sei o valor que o banco gerou)
+		return estilos.saveAndFlush(estilo);
 	}
 }

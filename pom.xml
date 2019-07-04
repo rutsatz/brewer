@@ -44,6 +44,9 @@
 		<!-- Spring Data JPA -->
 		<!-- <spring-data-jpa.version>2.1.9.RELEASE</spring-data-jpa.version> -->
 		<spring-data-jpa.version>1.10.2.RELEASE</spring-data-jpa.version>
+
+		<!-- Jackson - JSON -->
+		<jackson-core.version>2.9.9</jackson-core.version>
 	</properties>
 
 	<build>
@@ -162,12 +165,12 @@
 		</dependency>
 
 		<!-- JPA / Hibernate -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.hibernate</groupId> -->
-<!-- 			<artifactId>hibernate-core</artifactId> -->
-<!-- 			<version>${hibernate.version}</version> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.hibernate</groupId> -->
+		<!-- <artifactId>hibernate-core</artifactId> -->
+		<!-- <version>${hibernate.version}</version> -->
+		<!-- <scope>compile</scope> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
@@ -203,6 +206,14 @@
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.4</version>
+		</dependency>
+
+		<!-- Jackson - JSON -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson-core.version}</version>
+			<scope>compile</scope>
 		</dependency>
 
 
