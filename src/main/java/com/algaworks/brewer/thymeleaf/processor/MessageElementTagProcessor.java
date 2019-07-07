@@ -47,9 +47,9 @@ public class MessageElementTagProcessor extends AbstractElementTagProcessor {
 		 * <th:block th:include="fragments/MensagemSucesso"></th:block>
 		 * <th:block th:include="fragments/MensagensErroValidacao"></th:block>
 		 */
-		model.add(modelFactory.createStandaloneElementTag("th:block", "th:include", "fragments/MensagemSucesso"));
+		model.add(modelFactory.createStandaloneElementTag("th:block", "th:replace", "fragments/MensagemSucesso :: alert"));
 		model.add(
-				modelFactory.createStandaloneElementTag("th:block", "th:include", "fragments/MensagensErroValidacao"));
+				modelFactory.createStandaloneElementTag("th:block", "th:replace", "fragments/MensagensErroValidacao :: alert"));
 
 		/*
 		 * Depois de criado meu novo elemento, digo que o elemento que está com o
