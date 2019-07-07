@@ -30,12 +30,10 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 <!-- 				</th:block> -->
 <!-- 			</div> -->
 
-			<th:block th:include="fragments/MensagemSucesso"></th:block>
-
 			<form method="post" th:object="${cerveja}" class="form-vertical  js-form-loading">
-	
-				<th:block th:include="fragments/MensagensErroValidacao"></th:block>	
-	
+
+				<brewer:message />
+
 				<div class="row">
 				    <!-- Trocamos o th:classappend do thymeleaf pelo nosso próprio
 				    atributo brewer:classforerror.
