@@ -8,6 +8,12 @@
 	font-size: 18px;
 }
 
+/* Adiciona o * nos campos obrigatórios, depois do conteúdo do label
+  que tem control-label. */
+.bw-required > .control-label:after {
+	content: "*"
+}
+
 /*
 #####################
 # COMPONENTES
