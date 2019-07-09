@@ -8,7 +8,11 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 	layout:decorator="'layout/LayoutPadrao'"
 	xmlns:brewer="http://brewer.algaworks.com">
 	
-<head></head>
+<head>
+	<title>Cadastro Cerveja</title>
+
+	<link rel="stylesheet" th:href="@{/stylesheets/vendors/uikit.min.css}"/>
+</head>
 
 <body>
 	<section layout:fragment="conteudo">
@@ -62,7 +66,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 								<option value="">Selecione o estilo</option>
 								<option th:each="estilo : ${estilos}" th:value="${estilo.codigo}" th:text="${estilo.nome}">Pale Lager</option>
 							</select>
-							
+
 							<div class="bw-field-action__icon">
 								<a href="#" data-toggle="modal" data-target="#modalCadastroRapidoEstilo">
 									<i class="glyphicon glyphicon-plus bw-glyphicon-large"></i>
@@ -70,7 +74,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="col-sm-3 form-group" brewer:classforerror="sabor">
 						<label for="sabor" class="control-label">Sabor</label>
 						<select id="sabor" class="form-control" th:field="*{sabor}">
@@ -78,7 +82,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							<option th:each="sabor : ${sabores}" th:value="${sabor}" th:text="${sabor.descricao}">Adocicada</option>
 						</select>
 					</div>
-		
+
 					<div class="col-sm-3 form-group" brewer:classforerror="teorAlcoolico">
 						<label for="teorAlcoolico" class="control-label">Teor alcoólico</label>
 						<div class="input-group">
@@ -86,7 +90,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							<div class="input-group-addon">%</div>
 						</div>
 					</div>
-					
+
 					<div class="col-lg-3 col-sm-6 form-group" brewer:classforerror="origem">
 						<label for="origem" class="control-label">Origem</label>
 						<div>
@@ -100,7 +104,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="row">
 					<div class="col-sm-3 form-group" brewer:classforerror="valor">
 						<label for="valor" class="control-label">Valor</label>
@@ -109,7 +113,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							<input id="valor" type="text" class="form-control js-decimal" th:field="*{valor}"/>
 						</div>
 					</div>
-				
+
 					<div class="col-sm-3 form-group" brewer:classforerror="comissao">
 						<label for="comissao" class="control-label">Comissão</label>
 						<div class="input-group">
@@ -117,13 +121,39 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							<div class="input-group-addon">%</div>
 						</div>
 					</div>
-					
+
 					<div class="col-sm-3 form-group" brewer:classforerror="quantidadeEstoque">
 						<label for="estoque" class="control-label">Estoque</label>
 						<input id="estoque" type="text" class="form-control js-plain" th:field="*{quantidadeEstoque}"/>
 					</div>
 				</div>
-	
+
+				<div class="row">
+					<div class="form-group col-sm-12">
+
+						<input type="hidden" th:field="*{foto}">
+						<input type="hidden" th:field="*{contentType}">
+
+						<label class="control-label">Foto</label>
+
+						<!-- O th:attr adiciona um novo atributo na tag, então o thymelaf resolve a
+							url e depois consigo pegar no JS. -->
+						<div class="js-container-foto-cerveja" th:attr="data-url-fotos=@{/fotos}">
+							<div class="js-upload uk-placeholder uk-text-center">
+	    						<span uk-icon="icon: cloud-upload"></span>
+	    						<span class="uk-text-middle">Arraste a foto aqui ou</span>
+	    						<div uk-form-custom>
+	        						<input type="file" accept=".jpg,.jpeg,.png">
+	        						<span class="uk-link">selecione</span>
+	    						</div>
+							</div>
+
+							<progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
+						</div>
+
+					</div>
+				</div>
+
 				<div class="form-group">
 					<button class="btn  btn-primary" type="submit">Salvar</button>
 				</div>
@@ -132,13 +162,18 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 		</div>
 
 		<div th:replace="estilo/CadastroRapidoEstilo :: modal"></div>
+		<th:block th:replace="hbs/FotoCerveja"></th:block>
 	</section>
 
 <!-- Substitui o conteúdo no rodapé do LayoutPadrao -->
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/estilo.cadastro-rapido.js}"></script>
+	<script th:src="@{/javascripts/vendors/uikit.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/uikit-icons.js}"></script>
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/cerveja.upload-foto.js}"></script>
+
 </th:block>
 
 </body>
-
 </html>
