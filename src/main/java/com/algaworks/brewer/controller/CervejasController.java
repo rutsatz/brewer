@@ -17,6 +17,7 @@ import com.algaworks.brewer.model.Origem;
 import com.algaworks.brewer.model.Sabor;
 import com.algaworks.brewer.repository.Cervejas;
 import com.algaworks.brewer.repository.Estilos;
+import com.algaworks.brewer.repository.filter.CervejaFilter;
 import com.algaworks.brewer.service.CadastroCervejaService;
 
 @Controller
@@ -31,7 +32,7 @@ public class CervejasController {
 
 	@Autowired
 	private Cervejas cervejas;
-	
+
 	@RequestMapping("/novo")
 	public ModelAndView novo(Cerveja cerveja) {
 		ModelAndView mv = new ModelAndView("cerveja/CadastroCerveja");
@@ -54,14 +55,21 @@ public class CervejasController {
 		return new ModelAndView("redirect:/cervejas/novo");
 	}
 
+	/*
+	 * Quando recebo a classe por parâmetro, o próprio Spring cria um objeto pra
+	 * mim. Por exemplo, no filtro, eu não precisa criar um objeto novo e colcoar
+	 * dentro do ModelAndView. Eu só recebo ele por parâmetro e o próprio Spring
+	 * cria e deixa disponível na view. As vezes precisa colocar o BindingResult,
+	 * mesmo sem ser usado, pois dá erro no Spring. Pode ser que seja um bug.
+	 */
 	@GetMapping
-	public ModelAndView pesquisar() {
+	public ModelAndView pesquisar(CervejaFilter cervejaFilter, BindingResult result) {
 		ModelAndView mv = new ModelAndView("cerveja/PesquisaCervejas");
 		mv.addObject("estilos", estilos.findAll());
 		mv.addObject("sabores", Sabor.values());
 		mv.addObject("origens", Origem.values());
-		
-		mv.addObject("cervejas", cervejas.findAll());
+
+		mv.addObject("cervejas", cervejas.filtrar(cervejaFilter));
 		return mv;
 	}
 
