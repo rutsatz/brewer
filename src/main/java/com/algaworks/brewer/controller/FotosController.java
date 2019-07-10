@@ -57,4 +57,13 @@ public class FotosController {
 		return fotoStorage.recuperarFotoTemporaria(nome);
 	}
 
+	/*
+	 * Quando coloco os :, passo uma expressão regular, ai o Spring vai ler a URL
+	 * inteira. Se não fizer isso, ele não vai ler o .png do nome da foto.
+	 */
+	@GetMapping("/{nome:.*}")
+	public byte[] recuperar(@PathVariable String nome) {
+		return fotoStorage.recuperar(nome);
+	}
+
 }
