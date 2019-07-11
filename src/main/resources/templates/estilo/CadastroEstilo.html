@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorator="'layout/LayoutPadrao'">
+	layout:decorator="'layout/LayoutPadrao'"
+	xmlns:brewer="http://brewer.algaworks.com">
 
 <head>
 	<title>Cadastro de estilo</title>
@@ -12,27 +13,39 @@
 
 	<div class="page-header">
 		<div class="container-fluid">
-			<h1>
-				Cadastro de estilo
-			</h1>
+			<div class="row">
+				<div class="col-sm-10">
+					<h1>Cadastro de estilo</h1>
+				</div>
+
+				<div class="col-sm-2">
+					<div class="aw-page-header-controls">
+						<a class="btn btn-default" th:href="@{/estilos}">
+							<i class="glyphicon glyphicon-plus-sign"></i> <span class="hidden-xs hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-	
+
 	<div class="container-fluid">
-	
-		<th:block th:include="fragments/MensagemSucesso"></th:block>
-	
+
+<!-- 		<th:block th:include="fragments/MensagemSucesso"></th:block> -->
+
 		<form method="post" th:object="${estilo}">
-		
-			<th:block th:include="fragments/MensagensErroValidacao"></th:block>
-		
+
+<!-- 			<th:block th:include="fragments/MensagensErroValidacao"></th:block> -->
+
+			<brewer:message />
+
 			<div class="row">
-				<div class="form-group  col-sm-12" th:classapped="${#fields.hasErrors('nome')} ? has-error">
+				<div class="form-group  col-sm-12 bw-required" brewer:classforerror="nome">
 					<label for="nome" class="control-label">Nome</label>
 					<input type="text" class="form-control" id="nome" autofocus="autofocus" th:field="*{nome}"/>
 				</div>
 			</div>
-				
+
 			<button type="submit" class="btn  btn-primary">Salvar</button>
 		</form>
 	</div>

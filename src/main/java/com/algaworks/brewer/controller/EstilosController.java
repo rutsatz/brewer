@@ -19,10 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.algaworks.brewer.controller.page.PageWrapper;
-import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.model.Estilo;
 import com.algaworks.brewer.repository.Estilos;
-import com.algaworks.brewer.repository.filter.CervejaFilter;
 import com.algaworks.brewer.repository.filter.EstiloFilter;
 import com.algaworks.brewer.service.CadastroEstiloService;
 import com.algaworks.brewer.service.exception.NomeEstiloJaCadastradoException;
@@ -34,9 +32,9 @@ public class EstilosController {
 	@Autowired
 	private CadastroEstiloService cadastroEstiloService;
 
-	   @Autowired
-	    private Estilos estilos;
-	
+	@Autowired
+	private Estilos estilos;
+
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estilo estilo) {
 		ModelAndView mv = new ModelAndView("estilo/CadastroEstilo");
@@ -76,17 +74,17 @@ public class EstilosController {
 		System.out.println(">>>> estilo: " + estilo.getNome());
 		return ResponseEntity.ok(estilo);
 	}
-	
+
 	@GetMapping
-    public ModelAndView pesquisar(EstiloFilter estiloFilter, BindingResult result,
-            @PageableDefault(size = 2) Pageable pageable, HttpServletRequest httpServletRequest) {
-	    ModelAndView mv = new ModelAndView("cerveja/PesquisaEstilos");
-	    
-	    PageWrapper<Estilo> paginaWrapper = new PageWrapper<>(estilos.filtrar(estiloFilter, pageable),
-	                    httpServletRequest);
-	    
-	    mv.addObject("pagina", paginaWrapper);
-	    return mv;
+	public ModelAndView pesquisar(EstiloFilter estiloFilter, BindingResult result,
+			@PageableDefault(size = 2) Pageable pageable, HttpServletRequest httpServletRequest) {
+		ModelAndView mv = new ModelAndView("estilo/PesquisaEstilos");
+
+		PageWrapper<Estilo> paginaWrapper = new PageWrapper<>(estilos.filtrar(estiloFilter, pageable),
+				httpServletRequest);
+
+		mv.addObject("pagina", paginaWrapper);
+		return mv;
 	}
 
 }
