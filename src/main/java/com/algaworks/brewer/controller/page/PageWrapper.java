@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -61,4 +62,62 @@ public class PageWrapper<T> {
 		 */
 		return uriBuilder.replaceQueryParam("page", pagina).build(true).encode().toUriString();
 	}
+
+    /**
+     * Método chamado pelo html para montar a utl com a ordenação.
+     *
+     * @param propriedade Campo da ordenação, enviado pelo html.
+     * @return Url com os parâmetros de ordenação.
+     */
+    public String urlOrdenada(String propriedade) {
+        /*
+         * É criado um novo uriBuilder para a ordenação, apartir do uriBuilder do
+         * request. Não posso aproveitar o mesmo uriBuilder do request pq os parâmertos
+         * de paginação que adicionei no método acima serão mantidos, sendo que eu não
+         * quero esse parametros. Ou seja, não vai atrapalhar a url da requisição.
+         */
+        UriComponentsBuilder uriBuilderOrder = UriComponentsBuilder.fromUriString(uriBuilder.build(true).encode().toUriString());
+
+        /* Formata a url, ajustando o valor do sort. Ex.: sort=name,asc */
+        String valorSort = String.format("%s,%s", propriedade, inverterDirecao(propriedade));
+
+        return uriBuilderOrder.replaceQueryParam("sort", valorSort).build(true).encode().toUriString();
+    }
+
+    public String inverterDirecao(String propriedade) {
+        /* Direção default. */
+        String direcao = "asc";
+
+        /* Se html tiver enviado uma direção, eu inverto, se não, mantém a default. */
+        Sort.Order order = page.getSort() != null ? page.getSort().getOrderFor(propriedade) : null;
+        if(order!= null) {
+//            direcao = Sort.Direction.ASC.equals(order.getDirection()) ? "desc" : "asc";
+            direcao = order.isAscending() ? "desc" : "asc";
+        }
+
+        return direcao;
+    }
+
+    /**
+     * Verifica se a ordenação é descendente.
+     *
+     * @param propriedade Campo da ordenação a ser verificado.
+     * @return true se for descendente.
+     */
+    public boolean descendente(String propriedade) {
+        /* Se inverter a direção e for ascendente, então a direção atual é descendente. */
+        return inverterDirecao(propriedade).equals("asc");
+    }
+
+    public boolean ordenada(String propriedade) {
+        Sort.Order order = page.getSort() != null ? page.getSort().getOrderFor(propriedade) : null;
+
+        /* Se não tem nenhuma ordenação, já sai. */
+        if(order == null) {
+            return false;
+        }
+
+        /* Se tem ordenação, verifica se o campo está ordenado. */
+        return page.getSort().getOrderFor(propriedade) != null ? true : false;
+    }
 }

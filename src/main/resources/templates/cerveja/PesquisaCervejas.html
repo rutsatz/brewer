@@ -100,10 +100,29 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 					<tr>
 						<th class="table-cervejas-col-foto"></th>
 						<th class="table-cervejas-col-sku">
-							SKU
-							<span class="dropup"><span class="caret"></span></span>
+							<a th:href="${pagina.urlOrdenada('sku')}" th:remove="${pagina.vazia} ? tag">
+								<span>SKU</span>
+								<!-- Quando for descendente, remove o dropup, aí a flecha aponta para baixo.
+								Se não tenho nenhuma ordenação, não mostra nada. -->
+								<span class="dropup" th:remove="${pagina.descendente('sku')} ? tag"
+										th:if="${pagina.ordenada('sku')}">
+									<span class="caret"></span>
+								</span>
+							</a>
 						</th>
-						<th class="table-cervejas-col-nome">Nome</th>
+						<th class="table-cervejas-col-nome">
+							<a th:href="${pagina.urlOrdenada('nome')}" th:remove="${pagina.vazia} ? tag">
+								<!-- Está no span, pois se não tiver resultado, deve remover o link. Ai com o
+								th:remove tag, ele mantém os filhos. -->
+								<span>Nome</span>
+								<!-- Quando for descendente, remove o dropup, aí a flecha aponta para baixo.
+								Se não tenho nenhuma ordenação, não mostra nada. -->
+								<span class="dropup" th:remove="${pagina.descendente('nome')} ? tag"
+										th:if="${pagina.ordenada('nome')}">
+									<span class="caret"></span>
+								</span>
+							</a>
+						</th>
 						<th class="table-cervejas-col-estilo">Estilo</th>
 						<th class="table-cervejas-col-origem">Origem</th>
 						<th class="table-cervejas-col-valor">Valor</th>
