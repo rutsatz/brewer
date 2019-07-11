@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.number.NumberStyleFormatter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
@@ -31,9 +32,25 @@ import com.algaworks.brewer.thymeleaf.BrewerDialect;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
+/*
+ * A classe WebConfig é informada lá no AppInitializer como uma classe para ser
+ * usada para buscar configurações do sistema.
+ */
 @Configuration
+/*
+ * Configura o pacote base para buscar os controllers. É usado a classe
+ * CervejasController como base pq é melhor que passar uma String, pois em caso
+ * de refatoração, não vai dar problema. E esse controller é o principal do
+ * sistema, então ele sempre vai existir.
+ */
 @ComponentScan(basePackageClasses = { CervejasController.class })
+/* Habilita os recursos Web do Spring. */
 @EnableWebMvc
+/*
+ * Adiciona suporte a alguns recursos do SpringData, relacionadas a parte Web,
+ * como por exemplo, habilita o suporte do Pageable.
+ */
+@EnableSpringDataWebSupport
 public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;

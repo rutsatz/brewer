@@ -99,7 +99,10 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 				<thead>
 					<tr>
 						<th class="table-cervejas-col-foto"></th>
-						<th class="table-cervejas-col-sku">SKU</th>
+						<th class="table-cervejas-col-sku">
+							SKU
+							<span class="dropup"><span class="caret"></span></span>
+						</th>
 						<th class="table-cervejas-col-nome">Nome</th>
 						<th class="table-cervejas-col-estilo">Estilo</th>
 						<th class="table-cervejas-col-origem">Origem</th>
@@ -109,7 +112,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 				</thead>
 				
 				<tbody>
-					<tr th:each="cerveja : ${cervejas}">
+					<tr th:each="cerveja : ${pagina.conteudo}">
 						<td class="text-center">
 							<!-- {} indica que é uma variável a ser injetada na url. E essa variável
 							 é carregada com o foto= e passamos uma expressão do thymeleaf. -->
@@ -130,33 +133,42 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 						</td>
 					</tr>
 					
-					<tr th:if="${#lists.isEmpty(cervejas)}">
-						<td colspan="7">Nenhum cerveja encontrada</td>
+					<tr th:if="${pagina.vazia}">
+						<td colspan="7">Nenhuma cerveja encontrada</td>
 					</tr>
 				</tbody>
 				
 			</table>
 		</div>
 
-		<div class="col-sm-12  text-center">
+		<!-- Somente mostra páginação se teve resultados. -->
+		<div class="col-sm-12  text-center" th:if="${not pagina.vazia}">
 			<nav>
-				<ul class="pagination pagination-sm">
-					<li class="disabled">
-				      <a href="#" aria-label="Previous">
+				<ul class="pagination pagination-sm" th:with="paginaAtual=${pagina.atual}">
+					<li th:class="${pagina.primeira} ? disabled">
+						<!-- th:remove com all remove a própria tag e todos os filhos.
+						Colocando tag, ele remove somente a tag, mantendo os seus filhos.
+						Colocando body, ele mantém a tag e remove somente os filhos. -->
+				      <a th:href="${pagina.urlParaPagina(paginaAtual - 1)}" aria-label="Previous" th:remove="${pagina.primeira} ? tag">
 				        <span aria-hidden="true">&laquo;</span>
 				      </a>
 				    </li>
-					<li class="active">
-						<a href="#">1</a>
-					</li>
-					<li>
-						<a href="#">2</a>
-					</li>
-					<li>
-						<a href="#">3</a>
-					</li>
-					<li>
-				      <a href="#" aria-label="Previous">
+
+					<!-- Uso o #numbers e gero uma sequência de números, iniciando em 1
+					 e indo até o total, salvando o número atual em p.
+
+					 O th:with cria uma variável que vale dentro do bloco, para não precisar ficar
+					 repetindo o p - 1, pois a paginação do Spring começa em 0. -->
+					<th:block th:each="p : ${#numbers.sequence(1, pagina.total)}" th:with="numeroPagina=${p - 1}">
+						<!-- Se a página atual é igual a selecionada. -->
+						<li th:class="${paginaAtual == numeroPagina} ? active">
+							<a th:href="${pagina.urlParaPagina(numeroPagina)}">[[${p}]]</a>
+						</li>
+					</th:block>
+
+
+					<li th:class="${pagina.ultima} ? disabled">
+				      <a th:href="${pagina.urlParaPagina(paginaAtual + 1)}" aria-label="Previous" th:remove="${pagina.ultima} ? tag">
 				        <span aria-hidden="true">&raquo;</span>
 				      </a>
 				    </li>

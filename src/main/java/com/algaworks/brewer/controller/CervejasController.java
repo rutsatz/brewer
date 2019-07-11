@@ -1,8 +1,11 @@
 package com.algaworks.brewer.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.algaworks.brewer.controller.page.PageWrapper;
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.model.Origem;
 import com.algaworks.brewer.model.Sabor;
@@ -61,15 +65,32 @@ public class CervejasController {
 	 * dentro do ModelAndView. Eu só recebo ele por parâmetro e o próprio Spring
 	 * cria e deixa disponível na view. As vezes precisa colocar o BindingResult,
 	 * mesmo sem ser usado, pois dá erro no Spring. Pode ser que seja um bug.
+	 *
+	 * Quanto ao Pageable, já tem uma integração do SpringMVC, que passo os
+	 * parâmetros com os nomes pré-definidos que ele já coloca no pageable, ou seja,
+	 * faz a tradução dos parâmetros e coloca dentro desse objeto. Mas para isso,
+	 * preciso habilitar, pois ele é uma interface, então para habilitar, preciso
+	 * addicionar a anotação @EnableSpringDataWebSupport no WebConfig. Posso passar
+	 * o tamanho de cada página através do parametro &size=n, na url ou entao mudar
+	 * o default através do @PageableDefault.
 	 */
 	@GetMapping
-	public ModelAndView pesquisar(CervejaFilter cervejaFilter, BindingResult result) {
+	public ModelAndView pesquisar(CervejaFilter cervejaFilter, BindingResult result,
+			@PageableDefault(size = 2) Pageable pageable, HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("cerveja/PesquisaCervejas");
 		mv.addObject("estilos", estilos.findAll());
 		mv.addObject("sabores", Sabor.values());
 		mv.addObject("origens", Origem.values());
 
-		mv.addObject("cervejas", cervejas.filtrar(cervejaFilter));
+		PageWrapper<Cerveja> paginaWrapper = new PageWrapper<>(cervejas.filtrar(cervejaFilter, pageable),
+				httpServletRequest);
+		/*
+		 * Como estou usando um Page, lá na minha view preciso fazer um pagina.content
+		 * para recuperar a lista de cervejas.
+		 */
+		mv.addObject("pagina", paginaWrapper);
+
+//		mv.addObject("cervejas", cervejas.findAll(pageable));
 		return mv;
 	}
 
