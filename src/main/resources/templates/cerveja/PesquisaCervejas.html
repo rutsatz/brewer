@@ -100,28 +100,15 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 					<tr>
 						<th class="table-cervejas-col-foto"></th>
 						<th class="table-cervejas-col-sku">
-							<a th:href="${pagina.urlOrdenada('sku')}" th:remove="${pagina.vazia} ? tag">
-								<span>SKU</span>
-								<!-- Quando for descendente, remove o dropup, aí a flecha aponta para baixo.
-								Se não tenho nenhuma ordenação, não mostra nada. -->
-								<span class="dropup" th:remove="${pagina.descendente('sku')} ? tag"
-										th:if="${pagina.ordenada('sku')}">
-									<span class="caret"></span>
-								</span>
-							</a>
+							<!-- Inclui a partir do order.
+							Passa os parâmetros para o fragment. O objeto página lá do server,
+							o nome do field e o texto do Field.-->
+							<!-- <th:block th:replace="fragments/Ordenacao :: order (${pagina}, 'sku', 'SKU')"></th:block> -->
+							<brewer:order page="${pagina}" field="sku" text="SKU"/>
 						</th>
 						<th class="table-cervejas-col-nome">
-							<a th:href="${pagina.urlOrdenada('nome')}" th:remove="${pagina.vazia} ? tag">
-								<!-- Está no span, pois se não tiver resultado, deve remover o link. Ai com o
-								th:remove tag, ele mantém os filhos. -->
-								<span>Nome</span>
-								<!-- Quando for descendente, remove o dropup, aí a flecha aponta para baixo.
-								Se não tenho nenhuma ordenação, não mostra nada. -->
-								<span class="dropup" th:remove="${pagina.descendente('nome')} ? tag"
-										th:if="${pagina.ordenada('nome')}">
-									<span class="caret"></span>
-								</span>
-							</a>
+							<!-- <th:block th:replace="fragments/Ordenacao :: order (${pagina}, 'nome', 'Nome')"></th:block> -->
+							<brewer:order page="${pagina}" field="nome" text="Nome"/>
 						</th>
 						<th class="table-cervejas-col-estilo">Estilo</th>
 						<th class="table-cervejas-col-origem">Origem</th>
