@@ -7,7 +7,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorator="'layout/LayoutPadrao'"
 	xmlns:brewer="http://brewer.algaworks.com">
-	
+
 <head>
 	<title>Pesquisa Cervejas</title>
 </head>
@@ -20,7 +20,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 				<div class="col-sm-10">
 					<h1>Pesquisa de cervejas</h1>
 				</div>
-				
+
 				<div class="col-sm-2">
 					<div class="aw-page-header-controls">
 						<a class="btn btn-default" th:href="@{/cervejas/novo}">
@@ -39,7 +39,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 					<label for="sku" class="control-label">SKU</label>
 					<input id="sku" type="text" class="form-control" autofocus="autofocus" th:field="*{sku}"/>
 				</div>
-	
+
 				<div class="form-group col-sm-6">
 					<label for="nome" class="control-label">Nome</label>
 					<input id="nome" type="text" class="form-control" th:field="*{nome}"/>
@@ -62,7 +62,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="row">
 				<div class="form-group col-sm-6">
 					<label for="origem" class="control-label">Origem</label>
@@ -77,10 +77,10 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							<input id="todasOrigens" type="radio" th:checked="*{origem} == null" name="origem">
 							<label for="todasOrigens">Todas</label>
 						</div>
-						
+
 					</div>
 				</div>
-					
+
 				<div class="col-sm-6 form-group">
 					<label for="valorDe">Preço Unitário</label>
 					<div class="form-inline">
@@ -90,10 +90,10 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 					</div>
 				</div>
 			</div>
-		
+
 			<button type="submit" class="btn btn-primary">Pesquisar</button>
 		</form>
-		
+
 		<div class="table-responsive bw-tabela-simples">
 			<table class="table  table-hover">
 				<thead>
@@ -116,7 +116,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 						<th class="table-cervejas-col-acoes"></th>
 					</tr>
 				</thead>
-				
+
 				<tbody>
 					<tr th:each="cerveja : ${pagina.conteudo}">
 						<td class="text-center">
@@ -138,49 +138,16 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							</a>
 						</td>
 					</tr>
-					
+
 					<tr th:if="${pagina.vazia}">
 						<td colspan="7">Nenhuma cerveja encontrada</td>
 					</tr>
 				</tbody>
-				
+
 			</table>
 		</div>
 
-		<!-- Somente mostra páginação se teve resultados. -->
-		<div class="col-sm-12  text-center" th:if="${not pagina.vazia}">
-			<nav>
-				<ul class="pagination pagination-sm" th:with="paginaAtual=${pagina.atual}">
-					<li th:class="${pagina.primeira} ? disabled">
-						<!-- th:remove com all remove a própria tag e todos os filhos.
-						Colocando tag, ele remove somente a tag, mantendo os seus filhos.
-						Colocando body, ele mantém a tag e remove somente os filhos. -->
-				      <a th:href="${pagina.urlParaPagina(paginaAtual - 1)}" aria-label="Previous" th:remove="${pagina.primeira} ? tag">
-				        <span aria-hidden="true">&laquo;</span>
-				      </a>
-				    </li>
-
-					<!-- Uso o #numbers e gero uma sequência de números, iniciando em 1
-					 e indo até o total, salvando o número atual em p.
-
-					 O th:with cria uma variável que vale dentro do bloco, para não precisar ficar
-					 repetindo o p - 1, pois a paginação do Spring começa em 0. -->
-					<th:block th:each="p : ${#numbers.sequence(1, pagina.total)}" th:with="numeroPagina=${p - 1}">
-						<!-- Se a página atual é igual a selecionada. -->
-						<li th:class="${paginaAtual == numeroPagina} ? active">
-							<a th:href="${pagina.urlParaPagina(numeroPagina)}">[[${p}]]</a>
-						</li>
-					</th:block>
-
-
-					<li th:class="${pagina.ultima} ? disabled">
-				      <a th:href="${pagina.urlParaPagina(paginaAtual + 1)}" aria-label="Previous" th:remove="${pagina.ultima} ? tag">
-				        <span aria-hidden="true">&raquo;</span>
-				      </a>
-				    </li>
-				</ul>
-			</nav>
-		</div>
+		<brewer:pagination />
 
 	</div>
 

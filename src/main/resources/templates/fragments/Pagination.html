@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="pagination">
+	<!-- Somente mostra páginação se teve resultados. -->
+	<div class="col-sm-12  text-center" th:if="${not pagina.vazia}">
+		<nav>
+			<ul class="pagination pagination-sm" th:with="paginaAtual=${pagina.atual}">
+				<li th:class="${pagina.primeira} ? disabled">
+					<!-- th:remove com all remove a própria tag e todos os filhos.
+					Colocando tag, ele remove somente a tag, mantendo os seus filhos.
+					Colocando body, ele mantém a tag e remove somente os filhos. -->
+			      <a th:href="${pagina.urlParaPagina(paginaAtual - 1)}" aria-label="Previous" th:remove="${pagina.primeira} ? tag">
+			        <span aria-hidden="true">&laquo;</span>
+			      </a>
+			    </li>
+
+				<!-- Uso o #numbers e gero uma sequência de números, iniciando em 1
+				 e indo até o total, salvando o número atual em p.
+	
+				 O th:with cria uma variável que vale dentro do bloco, para não precisar ficar
+				 repetindo o p - 1, pois a paginação do Spring começa em 0. -->
+				<th:block th:each="p : ${#numbers.sequence(1, pagina.total)}" th:with="numeroPagina=${p - 1}">
+					<!-- Se a página atual é igual a selecionada. -->
+					<li th:class="${paginaAtual == numeroPagina} ? active">
+						<a th:href="${pagina.urlParaPagina(numeroPagina)}">[[${p}]]</a>
+					</li>
+				</th:block>
+
+
+				<li th:class="${pagina.ultima} ? disabled">
+			      <a th:href="${pagina.urlParaPagina(paginaAtual + 1)}" aria-label="Previous" th:remove="${pagina.ultima} ? tag">
+			        <span aria-hidden="true">&raquo;</span>
+			      </a>
+			    </li>
+			</ul>
+		</nav>
+	</div>
+</th:block>
+</html>
