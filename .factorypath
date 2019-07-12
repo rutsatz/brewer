@@ -48,4 +48,5 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/net/coobird/thumbnailator/0.4.8/thumbnailator-0.4.8.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/com/github/mxab/thymeleaf/extras/thymeleaf-extras-data-attribute/2.0.1/thymeleaf-extras-data-attribute-2.0.1.jar" enabled="true" runInBatchMode="false"/>
 </factorypath>

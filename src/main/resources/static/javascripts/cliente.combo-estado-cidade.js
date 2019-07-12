@@ -37,9 +37,11 @@ Brewer.ComboCidade = (function() {
 	function ComboCidade(comboEstado) {
 		this.comboEstado = comboEstado;
 		this.combo = $('#cidade');
+		this.imgLoading = $('.js-img-loading');
 	}
 
 	ComboCidade.prototype.iniciar = function() {
+		reset.call(this);
 		/*
 		 * Esse "on" é o objeto que foi definido dentro do ComboEstado. Como
 		 * recebo por parâmetro, posso escutar as mudanças dentro do
@@ -50,9 +52,54 @@ Brewer.ComboCidade = (function() {
 
 	/* Sempre que o outro combo mudar de estado, atualiza a lista de cidades. */
 	function onEstadoAlterado(evento, codigoEstado) {
-//		var resposta = $.ajax({
-//			url: 
-//		});
+		if (codigoEstado) {
+			var resposta = $.ajax({
+				url : this.combo.data('url'),
+				method : 'GET',
+				contentType : 'application/json',
+				data : {
+					'estado' : codigoEstado
+				},
+				/* Antes de começar a requisição. */
+				beforeSend : iniciarRequisicao.bind(this),
+				/* Quando a requisição estiver completa. */
+				complete : finalizarRequisicao.bind(this)
+			});
+
+			/* Chama a função quando tiver completado a requisição. */
+			resposta.done(onBuscarCidadesFinalizado.bind(this));
+
+		} else {
+			reset.call(this);
+		}
+	}
+
+	/* Recebe por parâmetro o que foi retornado lá da função ajax. */
+	function onBuscarCidadesFinalizado(cidades) {
+		var options = [];
+		cidades.forEach(function(cidade) {
+			/* Adiciona no array, separando por vírgula. */
+			options.push('<option value="' + cidade.codigo + '">' + cidade.nome
+					+ '</option>');
+		});
+		/* Junta os elementos do array, separando por nada. */
+		this.combo.html(options.join(''));
+		this.combo.removeAttr('disabled');
+	}
+
+	function reset() {
+		this.combo.html('<option value="">Selecione a cidade</option>');
+		this.combo.val('');
+		this.combo.attr('disabled', 'disabled');
+	}
+
+	function iniciarRequisicao() {
+		reset.call(this);
+		this.imgLoading.show();
+	}
+
+	function finalizarRequisicao() {
+		this.imgLoading.hide();
 	}
 
 	return ComboCidade;

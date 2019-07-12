@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:th="http://www.thymeleaf.org"
-	layout:decorate="layout/LayoutPadrao"
+	layout:decorate="~{layout/LayoutPadrao}"
 	xmlns:data="http://www.thymeleaf.org/extras/data">
 
 <head>
@@ -100,9 +100,17 @@
 
 				<div class="form-group  col-sm-4">
 					<label  for="cidade">Cidade</label>
-					<select id="cidade" class="form-control">
-						<option value="">Selecione a cidade</option>
-					</select>
+					<!-- Classe para componentes que tem uma ação. -->
+					<div class="bw-field-action">
+						<select id="cidade" class="form-control" data:url="@{/cidades}">
+						</select>
+						
+						<!-- Icone dessa ação. -->
+						<div class="bw-field-action__icon js-img-loading" style="display: none">
+							<img th:src="@{/images/mini-loading.gif}"/>
+						</div>
+						
+					</div>
 				</div>
 			</div>
 
