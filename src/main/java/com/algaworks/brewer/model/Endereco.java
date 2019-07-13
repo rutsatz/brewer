@@ -79,4 +79,11 @@ public class Endereco implements Serializable {
 		this.estado = estado;
 	}
 
+	public String getNomeCidadeSiglaEstado() {
+		if (this.cidade != null) {
+			return this.cidade.getNome() + "/" + this.cidade.getEstado().getSigla();
+		}
+		return null;
+	}
+
 }
