@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @Embeddable
 public class Endereco implements Serializable {
@@ -18,6 +19,13 @@ public class Endereco implements Serializable {
 	private String complemento;
 
 	private String cep;
+
+	/*
+	 * Atributo é usado para manter os valores do combo ajax do estado na tela
+	 * (Cadastro de Cliente), só para isso, por isso está com @Transient.
+	 */
+	@Transient
+	private Estado estado;
 
 	@ManyToOne
 	@JoinColumn(name = "codigo_cidade")
@@ -61,6 +69,14 @@ public class Endereco implements Serializable {
 
 	public void setCidade(Cidade cidade) {
 		this.cidade = cidade;
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
 	}
 
 }

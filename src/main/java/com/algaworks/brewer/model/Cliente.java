@@ -10,10 +10,28 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.br.CNPJ;
+import org.hibernate.validator.constraints.br.CPF;
+import org.hibernate.validator.group.GroupSequenceProvider;
+
+import com.algaworks.brewer.model.validation.ClienteGroupSequenceProvider;
+import com.algaworks.brewer.model.validation.group.CnpjGroup;
+import com.algaworks.brewer.model.validation.group.CpfGroup;
 
 @Entity
 @Table(name = "cliente")
+/*
+ * Valida o bean segundo uma sequencia que vou dizer. Essa sequencia eu
+ * implemento na classe passado por parâmetro.
+ */
+@GroupSequenceProvider(ClienteGroupSequenceProvider.class)
 public class Cliente implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -22,21 +40,39 @@ public class Cliente implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
 
+	@NotBlank(message = "Nome é obrigatório")
 	private String nome;
 
+	@NotNull(message = "O tipo pessoa é obrigatório")
 	@Enumerated(EnumType.STRING)
 	@Column(name = "tipo_pessoa")
 	private TipoPessoa tipoPessoa;
 
+	@NotBlank(message = "CPF/CNPJ é obrigatório!")
+	/**
+	 * Usa o groups para dizer qual annotation deve ser usada para validar. Ela usa
+	 * uma interface somente para marcação.
+	 */
+	@CPF(groups = CpfGroup.class)
+	@CNPJ(groups = CnpjGroup.class)
 	@Column(name = "cpf_cnpj")
 	private String cpfOuCnpj;
 
 	private String telefone;
 
+	@Email(message = "E-mail inválido")
 	private String email;
 
 	@Embedded
 	private Endereco endereco;
+
+	/** Métodos de callbak da JPA. */
+	@PrePersist
+	@PreUpdate
+	private void prePersistPreUpdate() {
+		/* Remove todos os ., - ou / antes de atualizar o banco. */
+		this.cpfOuCnpj = TipoPessoa.removerFormatacao(this.cpfOuCnpj);
+	}
 
 	public Long getCodigo() {
 		return codigo;
@@ -92,6 +128,10 @@ public class Cliente implements Serializable {
 
 	public void setEndereco(Endereco endereco) {
 		this.endereco = endereco;
+	}
+
+	public String getCpfOuCnpjSemFormatacao() {
+		return TipoPessoa.removerFormatacao(this.cpfOuCnpj);
 	}
 
 	@Override

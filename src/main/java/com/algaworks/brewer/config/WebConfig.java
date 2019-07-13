@@ -27,6 +27,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import com.algaworks.brewer.controller.CervejasController;
+import com.algaworks.brewer.controller.converter.CidadeConverter;
+import com.algaworks.brewer.controller.converter.EstadoConverter;
 import com.algaworks.brewer.controller.converter.EstiloConverter;
 import com.algaworks.brewer.thymeleaf.BrewerDialect;
 import com.github.mxab.thymeleaf.extras.dataattribute.dialect.DataAttributeDialect;
@@ -98,10 +100,13 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
 	}
 
+	/** Permite implementar uns serviços de conversão customizados. */
 	@Bean
 	public FormattingConversionService mvcConversionService() {
 		DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
 		conversionService.addConverter(new EstiloConverter());
+		conversionService.addConverter(new CidadeConverter());
+		conversionService.addConverter(new EstadoConverter());
 
 		/*
 		 * Sempre informo o pattern de conversão no padrão internacional. Mas quando ele
