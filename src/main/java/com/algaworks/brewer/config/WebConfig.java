@@ -2,11 +2,12 @@ package com.algaworks.brewer.config;
 
 import java.math.BigDecimal;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.BeansException;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.cache.guava.GuavaCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ import com.algaworks.brewer.controller.converter.EstadoConverter;
 import com.algaworks.brewer.controller.converter.EstiloConverter;
 import com.algaworks.brewer.thymeleaf.BrewerDialect;
 import com.github.mxab.thymeleaf.extras.dataattribute.dialect.DataAttributeDialect;
+import com.google.common.cache.CacheBuilder;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
@@ -139,15 +141,26 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	}
 
 	/*
-	 * Configura o cache do servidor. Existem várias implementações que posso usar.
+	 * Configura o cache do servidor com o guava.
 	 */
 	@Bean
 	public CacheManager cacheManager() {
 		/*
-		 * Implementação do spring, que guarda o cache num Map. Não é recomandado para
-		 * usar em produção.
+		 * Troquei a implementação do ConcurrentMapCache pelo Guava, e não preciso mexer
+		 * em mais nada, somente fornecer o novo ChacheManager.
 		 */
-		return new ConcurrentMapCacheManager();
+		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+				/* Configura quantas entidades eu quero em cache. */
+				.maximumSize(3)
+				/*
+				 * Configura o tempo de validade do cache, sem ninguém usar. Se tiver alguém
+				 * usando, o tempo fica resetando.
+				 */
+				.expireAfterAccess(20, TimeUnit.SECONDS);
+
+		GuavaCacheManager cacheManager = new GuavaCacheManager();
+		cacheManager.setCacheBuilder(cacheBuilder);
+		return cacheManager;
 	}
 
 }
