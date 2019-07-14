@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -47,6 +49,24 @@ public class CidadesController {
 		return mv;
 	}
 
+	/*
+	 * Habilita o cache para o método, evitando a consulta no banco toda vez que
+	 * selecionar um estado diferente. Ele faz o cacheamento do método, então se o
+	 * método foi chamado uma vez, ele fica em cache e não é mais executado. E como
+	 * ele sabe se o método foi executado? Pelo parâmetro. Então, para aquele
+	 * parâmetro, ele chama o método somente uma vez. Por parâmetro eu passo um nome
+	 * do local onde o cache via ficar salvo. Quando eu precisar invalidar o cache,
+	 * é esse nome que eu vou usar. O cache deve estar habilitado e configurado para
+	 * funcionar.
+	 *
+	 * Colocar coisas em cache que não costumam mudar.
+	 *
+	 * Eu também posso configurar a chave do cache, para quando for invalidar,
+	 * invalidar somente uma parte do cache, que realmente foi alterada, e deixar o
+	 * resto do cache que não foi mexido, deixar intacto. Para isso, passo no key o
+	 * nome do parâmetro com o #.
+	 */
+	@Cacheable(value = "cidades", key = "#codigoEstado")
 	/**
 	 * Passa o defaultValue = -1, pois se eu não selecionar nenhum valor no combo,
 	 * ele pesquisa por codigo -1, que não existe, e não retorna nada.
@@ -57,6 +77,20 @@ public class CidadesController {
 		return cidades.findByEstadoCodigo(codigoEstado);
 	}
 
+	/*
+	 * Quando chamar o método para salvar uma nova cidade, deve invalidar o cache
+	 * das cidades. Eu posso fazer isso com o @CacheEvict, passando o nome do cache
+	 * que quero invalidar. Assim, na próxima requisição, ele vai executar o método
+	 * novamente.
+	 *
+	 * Se estou configurando o cache por chave, na hora de invalidar, eu devo passar
+	 * a chave que foi configurada no cache. Eu passo a chave, com o #, e posso
+	 * navegar nos objetos, se for preciso. Se eu navegar nos objetos, eles podem
+	 * estar null. Então para evitar um null pointer, eu adiciono uma condition,
+	 * para somente invalidar se a condição for verdadeira. Eu passo o # e posso
+	 * chamar um método que retorne booleano.
+	 */
+	@CacheEvict(value = "cidades", key = "#cidade.estado.codigo", condition = "#cidade.temEstado()")
 	@PostMapping("/nova")
 	public ModelAndView salvar(@Valid Cidade cidade, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {

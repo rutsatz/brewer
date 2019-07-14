@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 import org.springframework.beans.BeansException;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -54,6 +57,11 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
  * como por exemplo, habilita o suporte do Pageable.
  */
 @EnableSpringDataWebSupport
+/*
+ * Habilita o cache no servidor, podendo deixar consultas na memória do
+ * servidor, por exemplo. Preciso configurar o CacheManager.
+ */
+@EnableCaching
 public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
@@ -128,6 +136,18 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	@Bean
 	public LocaleResolver localeResolver() {
 		return new FixedLocaleResolver(new Locale("pt", "BR"));
+	}
+
+	/*
+	 * Configura o cache do servidor. Existem várias implementações que posso usar.
+	 */
+	@Bean
+	public CacheManager cacheManager() {
+		/*
+		 * Implementação do spring, que guarda o cache num Map. Não é recomandado para
+		 * usar em produção.
+		 */
+		return new ConcurrentMapCacheManager();
 	}
 
 }
