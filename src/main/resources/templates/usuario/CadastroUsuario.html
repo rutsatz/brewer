@@ -69,14 +69,16 @@
 				<div class="form-group  col-sm-6  bw-required" brewer:classforerror="grupos">
 					<label class="control-label">Grupos</label> 
 					<div>
-  						<div class="checkbox  checkbox-inline"> 
-	    					<input type="checkbox" />
-	    					<label>Administrador</label>
-    					</div>
-    					<div class="checkbox  checkbox-inline"> 
-	    					<input type="checkbox" />
-	    					<label>Vendedor</label>
-    					</div>
+						<th:block th:each="grupo : ${grupos}">
+	  						<div class="checkbox  checkbox-inline"> 
+	  							<!-- Como grupos é uma lista na classe usuários, posso colocar acesso direto a lista,
+	  							pois o thymelaf vai entender que é uma lista. -->
+		    					<input type="checkbox" th:value="${grupo.codigo}" th:field="*{grupos}"/>
+		    					<!-- Uso o objeto auxiliar ids para gerar um ids para o for, para o campo 'grupos'.
+		    					Ele tem esse facilitador, que vai combinar o id com o campo anterior. -->
+		    					<label th:for="${#ids.prev('grupos')}" th:text="${grupo.nome}">Administrador</label>
+	    					</div>
+	    				</th:block>
 					</div>
 				</div>
 			</div>

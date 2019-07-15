@@ -1,4 +1,3 @@
-
 /*
 #####################
 # UTILIDADES
@@ -10,7 +9,7 @@
 
 /* Adiciona o * nos campos obrigatórios, depois do conteúdo do label
   que tem control-label. */
-.bw-required > .control-label:after {
+.bw-required>.control-label:after {
 	content: "*"
 }
 
@@ -45,7 +44,6 @@
 	vertical-align: middle;
 }
 
-
 /*
 #####################
 # PÁGINAS DO SISTEMA
@@ -64,7 +62,7 @@
 }
 
 .table-cervejas-col-nome {
-
+	
 }
 
 .table-cervejas-col-estilo {
@@ -91,7 +89,7 @@
 
 /* Colunas - Pesquisa de Clientes */
 .table-clientes-col-nome {
-
+	
 }
 
 .table-clientes-col-tipo-pessoa {
@@ -112,4 +110,33 @@
 .table-clientes-col-cidade-estado {
 	width: 140px;
 	text-align: right;
+}
+
+/*
+######################################
+# CUSTOMIZAÇÃO DE COMPONENTES
+######################################
+*/
+
+/* O checkbox usado nesse layout não é o do bootstrap, é um outro customizado, que é mais bonito.
+Só que esse componente precisa que o label esteja logo após o input. No entanto, o thymeleaf adiciona um input hidden
+depois do checkbox, para evitar problema de compatibilidade de browsers, pois alguns não enviam os checksbox que estão
+desmarcados. Aí para resolver esse problema, foi aberto o código fonte do componente e encontrado o código que causava
+o problema e foi sobrescrito, pela parte abaixo.
+
+link componente: https://github.com/flatlogic/awesome-bootstrap-checkbox
+
+O problema é o +, que diz que logo após o checkbox deve ter um label.
+
+Código original.
+.checkbox input[type="checkbox"]:checked+input+label::after {
+	font-family: 'FontAwesome';
+	content: "\f00c";
+}
+
+Então foi colocado um "+ input +" no meio, pois o thymeleaf sempre adiciona o input hidden.
+*/
+.checkbox input[type="checkbox"]:checked + input + label::after {
+	font-family: 'FontAwesome';
+	content: "\f00c";
 }
