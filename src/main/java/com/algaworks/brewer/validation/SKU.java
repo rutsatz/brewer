@@ -13,6 +13,10 @@ import javax.validation.constraints.Pattern;
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})
+/*
+ * Passa o padrão que o atributo anotado deve ter, ou seja, ele deve bater com
+ * essa expressão regular.
+ */
 @Pattern(regexp = "([a-zA-z]{2}\\d{4})?")
 public @interface SKU {
 
@@ -20,6 +24,7 @@ public @interface SKU {
 	String message() default "SKU deve seguir o padrão AA9999";
 
 	Class<?>[] groups() default {};
+
 	Class<? extends Payload>[] payload() default {};
 
 }
