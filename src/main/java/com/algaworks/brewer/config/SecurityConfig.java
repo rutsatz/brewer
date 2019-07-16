@@ -131,6 +131,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll()
 				/* Volto para o objeto anterior. */
 				.and()
+				/* Faz o tratamento das exceções, como acesso negado, por exemplo. */
+				.exceptionHandling()
+				    /* Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado. Eu preciso ter essa
+				      página mapeada. (Colocamos no SegurancaController)*/
+				    .accessDeniedPage("/403")
+				    .and()
 				/* Desabilito o CSRF */
 				.csrf().disable();
 	}
