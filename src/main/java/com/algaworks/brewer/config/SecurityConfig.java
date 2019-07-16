@@ -1,20 +1,45 @@
 package com.algaworks.brewer.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.algaworks.brewer.security.AppUserDetailsService;
+
 @EnableWebSecurity
+/*
+ * Adicionado para o Spring encontrar nossa implementação do UserDetailsService,
+ * que ele usa para fazer o login através da nossa busca de usuário.
+ */
+@ComponentScan(basePackageClasses = AppUserDetailsService.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private UserDetailsService userDetailsService;
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser("admin").password("admin").roles("CADASTRO_CLIENTE");
+		/* Usuário em memória, para testes. */
+//		auth.inMemoryAuthentication().withUser("admin").password("admin").roles("CADASTRO_CLIENTE");
+
+		/*
+		 * Configuramos a forma de autenticação. Estamos fornecendo o serviço de
+		 * autenticação, que é o userDetailsService que nós implementamos, e que
+		 * adicionamos a regra de buscar o usuários no banco de dados. E também
+		 * precisamos passar o encoder que usamos para criptografar a senha, se não o
+		 * SpringSecurity vai achar que é texto puro, mas no banco está criptografado.
+		 * Eu somente vou buscar no banco, pelo email e se está ativo, mas vai ser o
+		 * Spring que vai fazer a comparação da senha.
+		 */
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
 
 	@Override
