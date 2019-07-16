@@ -46,11 +46,14 @@ public class Usuario implements Serializable {
 
 	private Boolean ativo;
 
-	/* O NotNull não funciona para listas, pois ele recebe um array vazio ao invés de null.
-	 * E não preciso colocar o Cascade para persistir no banco, pois os grupos já existem no banco, ele só
-	 * precisa intesir a tabela de relacionamento usuario_grupo. Eu precisaria do cascade se fosse um grupo que
-	 * não existisse e eu fosse persistir ele. */
-	@Size(min =1, message = "Selecione pelo menos um grupo")
+	/*
+	 * O NotNull não funciona para listas, pois ele recebe um array vazio ao invés
+	 * de null. E não preciso colocar o Cascade para persistir no banco, pois os
+	 * grupos já existem no banco, ele só precisa intesir a tabela de relacionamento
+	 * usuario_grupo. Eu precisaria do cascade se fosse um grupo que não existisse e
+	 * eu fosse persistir ele.
+	 */
+	@Size(min = 1, message = "Selecione pelo menos um grupo")
 	@ManyToMany
 	@JoinTable(name = "usuario_grupo", joinColumns = @JoinColumn(name = "codigo_usuario"), inverseJoinColumns = @JoinColumn(name = "codigo_grupo"))
 	private List<Grupo> grupos;
@@ -121,6 +124,10 @@ public class Usuario implements Serializable {
 
 	public void setConfirmacaoSenha(String confirmacaoSenha) {
 		this.confirmacaoSenha = confirmacaoSenha;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
 	}
 
 	@Override

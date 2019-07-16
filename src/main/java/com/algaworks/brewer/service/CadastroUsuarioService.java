@@ -3,27 +3,48 @@ package com.algaworks.brewer.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.algaworks.brewer.model.Usuario;
 import com.algaworks.brewer.repository.Usuarios;
 import com.algaworks.brewer.service.exception.EmailUsuarioJaCadastradoException;
+import com.algaworks.brewer.service.exception.SenhaObrigatoriaUsuarioException;
 
 @Service
 public class CadastroUsuarioService {
 
-    @Autowired
-    private Usuarios usuarios;
+	@Autowired
+	private Usuarios usuarios;
 
-    @Transactional
-    public void salvar(Usuario usuario) {
-        Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
-        if (usuarioExistente.isPresent()) {
-            throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
-        }
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-        usuarios.save(usuario);
-    }
+	@Transactional
+	public void salvar(Usuario usuario) {
+		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
+		if (usuarioExistente.isPresent()) {
+			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
+		}
+
+		if (usuario.isNovo() && StringUtils.isEmpty(usuario.getSenha())) {
+			throw new SenhaObrigatoriaUsuarioException("Senha é obrigatória  para novo usuário");
+		}
+
+		/* Criptografa a senha do usuário. */
+		if (usuario.isNovo()) {
+			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
+			/*
+			 * Preciso setar a confirmacao da senha tbm, pois quando chega no JPA, ela tbm
+			 * executa os beans validations, e como eu alterei a senha, ele vai falhar ao
+			 * validar se as senhas conferem.
+			 */
+			usuario.setConfirmacaoSenha(usuario.getSenha());
+		}
+
+		usuarios.save(usuario);
+	}
 
 }
