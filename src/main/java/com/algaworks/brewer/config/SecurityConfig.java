@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.algaworks.brewer.security.AppUserDetailsService;
 
@@ -131,14 +132,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll()
 				/* Volto para o objeto anterior. */
 				.and()
+				/* Configura o logout do sistema. */
+				.logout()
+				    /* Com o CSRF habilitado, preciso liberar o /logout para qualquer usuário, pois pro logout não tem problema. 
+				     * Caso contrário, vai dar 404 se tentar fazer logout com o CSRF habilitado. */
+				    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				    .and()
 				/* Faz o tratamento das exceções, como acesso negado, por exemplo. */
 				.exceptionHandling()
 				    /* Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado. Eu preciso ter essa
 				      página mapeada. (Colocamos no SegurancaController)*/
-				    .accessDeniedPage("/403")
-				    .and()
-				/* Desabilito o CSRF */
-				.csrf().disable();
+				    .accessDeniedPage("/403");
+
+				/* Desabilito o CSRF. É muito importante. O default é habilitado. Foi desabilitado somente para desenvolvimento. */
+//				.and().csrf().disable();
 	}
 
 	/* Configura o gerador de senhas. Usado para criptografar a senha do usuário. */

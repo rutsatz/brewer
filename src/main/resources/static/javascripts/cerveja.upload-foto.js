@@ -26,7 +26,8 @@ Brewer.UploadFoto = (function() {
 			filelimit: 1,
 			allow: '*.(jpg|jpeg|png)',
 			url: this.containerFotoCerveja.data('url-fotos'),
-			complete: onUploadCompleto.bind(this)
+			complete: onUploadCompleto.bind(this),
+			beforeSend: adicionarCsrfToken
 		}
 
 		/* Inicializa o componente. */
@@ -68,6 +69,14 @@ Brewer.UploadFoto = (function() {
     	this.uploadDrop.removeClass('hidden');
     	this.inputNomeFoto.val('');
     	this.inputContentType.val('');
+	}
+
+	/* Recebe o objeto xhr, que é o que eu tenho que adicionar o token, pois esse método é chamado no
+	 * beforeSend da requisição Ajax do jQuery. */
+	function adicionarCsrfToken(xhr) {
+		var token = $('input[name=_csrf]').val();
+		var header = $('input[name=_csrf_header]').val();
+		xhr.setRequestHeader(header, token);
 	}
 
 	return UploadFoto;

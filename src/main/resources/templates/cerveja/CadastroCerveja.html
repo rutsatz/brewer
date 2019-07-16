@@ -44,7 +44,10 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 <!-- 				</th:block> -->
 <!-- 			</div> -->
 
-			<form method="post" th:object="${cerveja}" class="form-vertical  js-form-loading">
+			<!-- Quando estou com o CSRF habilitado, sempre preciso usar o th:action, pois ele adiciona um input hidden que
+			contém o token do CSRF que foi gerado pelo servidor. -->
+			<form method="post" th:object="${cerveja}" class="form-vertical  js-form-loading"
+				th:action="@{/cervejas/novo}">
 
 				<brewer:message />
 

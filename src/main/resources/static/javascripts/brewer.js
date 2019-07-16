@@ -102,6 +102,27 @@ Brewer.MaskDate = (function() {
 
 }());
 
+Brewer.Security = (function() {
+
+	function Security() {
+		this.token = $('input[name=_csrf]').val();
+		this.header = $('input[name=_csrf_header]').val();
+	}
+
+	Security.prototype.enable = function() {
+		/* Como toda requisição ajax eu terei que adicionar o CSRF, eu configuro no jQuery, para que sempre que mandar
+		 * um ajax, ele já sete o header. Ai eu recupero o header que eu adicionei. */
+		$(document).ajaxSend(function(event, jqxhr, settings) {
+			/* Ao invés de adicionar em todos os .js, adiciono aqui e configuro para todos em um só lugar. */
+			jqxhr.setRequestHeader(this.header, this.token);
+		/* Como é uma função e estou acessando o this, tenho que fazer a função executar no contexto this. */
+		}.bind(this));
+	}
+
+	return Security;
+
+}());
+
 /* Função ready do jQuery. */
 $(function() {
 	var maskMoney = new Brewer.MaskMoney();
@@ -115,5 +136,8 @@ $(function() {
 
 	var maskDate = new Brewer.MaskDate();
 	maskDate.enable();
+
+	var security = new Brewer.Security();
+	security.enable();
 
 });
