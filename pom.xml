@@ -61,7 +61,7 @@
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 
 		<!-- Spring Security -->
-		<spring-security-web.version>5.1.5.RELEASE</spring-security-web.version>
+		<spring-security.version>4.1.1.RELEASE</spring-security.version>
 	</properties>
 
 	<build>
@@ -271,11 +271,19 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- Spring Security -->
+		<!-- Spring Security - WEB -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version>${spring-security-web.version}</version>
+			<version>${spring-security.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Spring Security - Config -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring-security.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
