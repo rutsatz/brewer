@@ -68,6 +68,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				 está depois, pois ele encontrou um match antes e liberou o acesso.
 
 				 Por isso preciso definir primeiro o que quero bloquear, e por fim deixar liberado o resto.
+
+				 E se for usar o hasRole(), preciso salvar no banco de dados as permissões com o prefixo ROLE_. Se não quiser
+				 salvar no banco com esse prefixo, ai eu tenho que usar outro método, o hasAuthority().
 				 */
 				.antMatchers("/cidades/nova").hasRole("CADASTRAR_CIDADE")
 				/* Do usuário pra frente, precisa ter a role de cadastro de usuário. Essa é uma expressão ANT. Aí tanto o cadastro
