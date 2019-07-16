@@ -20,11 +20,12 @@
 
     	<ul class="nav navbar-nav  navbar-right">
       		<li>
-        		<a href="#"><em class="fa  fa-sign-out"></em></a>
+				<!-- /logout do próprio SpringSecurity. Só chamar ele que ele faz o logout. -->
+				<a th:href="@{/logout}"><em class="fa  fa-sign-out"></em></a>
    	  		</li> 
    		</ul>
 
- 		</div>
+	</div>
 </nav>
 
 </body>
