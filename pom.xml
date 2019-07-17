@@ -291,6 +291,7 @@
 		</dependency>
 
 		<!-- Thymeleaf - Extras Spring Security -->
+		<!-- https://github.com/thymeleaf/thymeleaf-extras-springsecurity -->
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
 			<artifactId>thymeleaf-extras-springsecurity4</artifactId>
