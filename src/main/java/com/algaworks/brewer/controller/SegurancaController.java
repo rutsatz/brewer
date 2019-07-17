@@ -26,7 +26,7 @@ public class SegurancaController {
 
 	/** Retorna a página de erro, qque configuramos para o SprinSecurity retornar quando ele tiver uma exception de acesso
 	 * negado. */
-	@GetMapping
+	@GetMapping("/403")
 	public String acessoNegado() {
 	    return "403";
 	}
