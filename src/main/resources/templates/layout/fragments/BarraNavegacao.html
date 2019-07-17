@@ -19,6 +19,15 @@
     	</div>
 
     	<ul class="nav navbar-nav  navbar-right">
+
+			<li>
+				<!-- O #authentication é o método disponibilizado pelo extras do SpringSecurity
+				do thymeleaf. O método principal dele me retorna o objeto que foi retornado pelo
+				loadUserByUsername do AppUserDetailsService, que no caso, é a nossa classe UsuarioSistema.
+				Então através do método principal, conseguimos recuperar nossa classe. -->
+				<p class="navbar-text" th:text="${#authentication.principal.usuario.nome}">Usuário</p>
+			</li>
+
       		<li>
 				<!-- /logout do próprio SpringSecurity. Só chamar ele que ele faz o logout. -->
 				<a th:href="@{/logout}"><em class="fa  fa-sign-out"></em></a>

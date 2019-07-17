@@ -28,6 +28,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.FixedLocaleResolver;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
@@ -95,6 +96,13 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		engine.addDialect(new LayoutDialect());
 		/* Registra o nosso próprio dialeto. */
 		engine.addDialect(new BrewerDialect());
+		/*
+		 * Adiciona o dialeto do spring security extras do thymeleaf, que vem com alguns
+		 * recursos para trabalhar com o security, como por exemplo, mostrar o nome do
+		 * usuário logado. Eu posso pegar o usuário através do #authentication lá na
+		 * view, que é um objeto que essa lib adiciona pra gente.
+		 */
+		engine.addDialect(new SpringSecurityDialect());
 
 		/* Lib para permitir adicionar atributos do tipo data de forma mais fácil. */
 		engine.addDialect(new DataAttributeDialect());
