@@ -158,22 +158,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				 * Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado.
 				 * Eu preciso ter essa página mapeada. (Colocamos no SegurancaController)
 				 */
-				.accessDeniedPage("/403");
+				.accessDeniedPage("/403").and()
 				/* Configurações relacionadas a sessão. */
-//				.and().sessionManagement()
+				.sessionManagement()
 				/*
-				 * Digo quantas sessões o usuário pode ter ativas ao mesmo tempo. O default é
-				 * ilimitado. Se eu coloco 1, se ele estiver logado em um computador e se logar
-				 * em outro, a primeira sessão é invalidade.
+				 * Quando a sessão está invalida e eu deixei uma tela aberta, por exemplo, uma
+				 * tela de cadastro e após a sessão expirar, eu clicar em salvar, ele vai dar um
+				 * erro 405, pq a minha sessão expirou. Mas ao invés de exibir o erro para o
+				 * usuário, posso redirecioná-lo para a tela de login. Eu também poderia criar
+				 * minha própria página, se eu quisesse, dizendo sessão inválida, faça o login
+				 * novamente ou algo assim.
+				 *
+				 * Esse problema somente acontece se eu mandar um post de uma página expirada.
+				 * Se eu mandar um get, o spring redireciona para o login automaticamente. E no
+				 * caso do get, ao fazer o login, ele me redireciona para a página q eu tinha
+				 * tentado acessar. No caso do post, ele manda para a página default do sistema.
 				 */
+				.invalidSessionUrl("/login");
+		/*
+		 * Digo quantas sessões o usuário pode ter ativas ao mesmo tempo. O default é
+		 * ilimitado. Se eu coloco 1, se ele estiver logado em um computador e se logar
+		 * em outro, a primeira sessão é invalidade.
+		 */
 //				.maximumSessions(1)
-				/*
-				 * Se uma sessão for invalidade por acesso concorrente, posso redirecionar o
-				 * usuário para uma página mais bonita, ao invés de dar aquela mensagem em
-				 * inglês. Posso colocar uma mensagem dizendo que alguém acessou com meu usuário
-				 * em outro lugar e talz. Mas no nosso caso, somente vamos redirecionar para a
-				 * tela de login.
-				 */
+		/*
+		 * Se uma sessão for invalidade por acesso concorrente, posso redirecionar o
+		 * usuário para uma página mais bonita, ao invés de dar aquela mensagem em
+		 * inglês. Posso colocar uma mensagem dizendo que alguém acessou com meu usuário
+		 * em outro lugar e talz. Mas no nosso caso, somente vamos redirecionar para a
+		 * tela de login.
+		 */
 //				.expiredUrl("/login");
 
 		/*

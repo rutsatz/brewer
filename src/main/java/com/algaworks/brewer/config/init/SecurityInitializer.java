@@ -1,7 +1,10 @@
 package com.algaworks.brewer.config.init;
 
+import java.util.EnumSet;
+
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionTrackingMode;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -14,6 +17,22 @@ public class SecurityInitializer extends AbstractSecurityWebApplicationInitializ
 
 	@Override
 	protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
+
+		/*
+		 * Configuro o tempo máximo da sessão de cada usuário (em segundos). Essa
+		 * configuração aqui define o tempo máximo da sessão, independente se o usuário
+		 * está usando o sistema ou não. É o tempo máximo da sessão, e não o tempo
+		 * máximo sem atividade.
+		 */
+//		servletContext.getSessionCookieConfig().setMaxAge(20);
+
+		/*
+		 * Por default o spring utiliza o tracking da sessão pela url. Por isso, as
+		 * vezes aparece o jSessionID na url do browser. Mas isso não é legal. E pode
+		 * ser um problema de segurança. Então posso alterar esse comportamento para
+		 * utilizar Cookies ao invés da url.
+		 */
+		servletContext.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
 
 		/*
 		 * Adiciona o filtro de charset no SpringSecurity, antes dele aplicar seus
