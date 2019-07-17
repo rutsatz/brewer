@@ -61,7 +61,7 @@
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 
 		<!-- Spring Security -->
-		<spring-security.version>4.1.1.RELEASE</spring-security.version>
+		<spring-security.version>4.2.13.RELEASE</spring-security.version>
 	</properties>
 
 	<build>

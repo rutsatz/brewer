@@ -60,22 +60,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 				/* Eu quero autorizar requisições. */
 				.authorizeRequests()
-				/* Adiciono uma configuração de permissão. Estou dizendo que para acessar o cadastro de cidades (/cidades/nova)
-				  eu preciso ter a permissão de CADASTRAR_CIDADE. Essa é a coluna nome cadastrada na tabela permissão.
-				 Preciso cuidar a ordem. Se eu colocasse essa linha abaixo, depois do .anyRequest().authenticated(), ele
-				 iria liberar acesso sempre, mesmo sem ter a role, pois o SpringSecurity vai avaliando na sequência que eu defino. Então
-				 ele viria e olharia que ele precisa verificar as autorizações e depois olharia que para qualquer requisição,
-				 ele precisa estar autenticado. Aí, opa! Está autenticado, pode liberar. Ele nem avaliaria essa nossa regra que
-				 está depois, pois ele encontrou um match antes e liberou o acesso.
-
-				 Por isso preciso definir primeiro o que quero bloquear, e por fim deixar liberado o resto.
-
-				 E se for usar o hasRole(), preciso salvar no banco de dados as permissões com o prefixo ROLE_. Se não quiser
-				 salvar no banco com esse prefixo, ai eu tenho que usar outro método, o hasAuthority().
+				/*
+				 * Adiciono uma configuração de permissão. Estou dizendo que para acessar o
+				 * cadastro de cidades (/cidades/nova) eu preciso ter a permissão de
+				 * CADASTRAR_CIDADE. Essa é a coluna nome cadastrada na tabela permissão.
+				 * Preciso cuidar a ordem. Se eu colocasse essa linha abaixo, depois do
+				 * .anyRequest().authenticated(), ele iria liberar acesso sempre, mesmo sem ter
+				 * a role, pois o SpringSecurity vai avaliando na sequência que eu defino. Então
+				 * ele viria e olharia que ele precisa verificar as autorizações e depois
+				 * olharia que para qualquer requisição, ele precisa estar autenticado. Aí, opa!
+				 * Está autenticado, pode liberar. Ele nem avaliaria essa nossa regra que está
+				 * depois, pois ele encontrou um match antes e liberou o acesso.
+				 *
+				 * Por isso preciso definir primeiro o que quero bloquear, e por fim deixar
+				 * liberado o resto.
+				 *
+				 * E se for usar o hasRole(), preciso salvar no banco de dados as permissões com
+				 * o prefixo ROLE_. Se não quiser salvar no banco com esse prefixo, ai eu tenho
+				 * que usar outro método, o hasAuthority().
 				 */
 				.antMatchers("/cidades/nova").hasRole("CADASTRAR_CIDADE")
-				/* Do usuário pra frente, precisa ter a role de cadastro de usuário. Essa é uma expressão ANT. Aí tanto o cadastro
-				  quanto a pesquisa precisam dessa role. */
+				/*
+				 * Do usuário pra frente, precisa ter a role de cadastro de usuário. Essa é uma
+				 * expressão ANT. Aí tanto o cadastro quanto a pesquisa precisam dessa role.
+				 */
 				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
 				/*
 				 * Permite qualquer um acessar os arquivos do "/layout" para frente, pois na
@@ -108,8 +116,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				 * usuário e senha).
 				 */
 				.authenticated()
-				/* Se eu quiser bloquear qualquer outra página que tenha sobra, ao invés de liberar, eu tiro o .authenticated()
-				  e coloco o .denyAll(). Eu uso um ou outro, se deixar os dois .anyRequest(), pode ser que de problema no SpringSecutiry. */
+				/*
+				 * Se eu quiser bloquear qualquer outra página que tenha sobra, ao invés de
+				 * liberar, eu tiro o .authenticated() e coloco o .denyAll(). Eu uso um ou
+				 * outro, se deixar os dois .anyRequest(), pode ser que de problema no
+				 * SpringSecutiry.
+				 */
 //				.denyAll()
 				/* Volto para o objeto anterior e posso continuar configurando. */
 				.and()
@@ -134,17 +146,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				/* Configura o logout do sistema. */
 				.logout()
-				    /* Com o CSRF habilitado, preciso liberar o /logout para qualquer usuário, pois pro logout não tem problema. 
-				     * Caso contrário, vai dar 404 se tentar fazer logout com o CSRF habilitado. */
-				    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-				    .and()
+				/*
+				 * Com o CSRF habilitado, preciso liberar o /logout para qualquer usuário, pois
+				 * pro logout não tem problema. Caso contrário, vai dar 404 se tentar fazer
+				 * logout com o CSRF habilitado.
+				 */
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).and()
 				/* Faz o tratamento das exceções, como acesso negado, por exemplo. */
 				.exceptionHandling()
-				    /* Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado. Eu preciso ter essa
-				      página mapeada. (Colocamos no SegurancaController)*/
-				    .accessDeniedPage("/403");
+				/*
+				 * Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado.
+				 * Eu preciso ter essa página mapeada. (Colocamos no SegurancaController)
+				 */
+				.accessDeniedPage("/403");
+				/* Configurações relacionadas a sessão. */
+//				.and().sessionManagement()
+				/*
+				 * Digo quantas sessões o usuário pode ter ativas ao mesmo tempo. O default é
+				 * ilimitado. Se eu coloco 1, se ele estiver logado em um computador e se logar
+				 * em outro, a primeira sessão é invalidade.
+				 */
+//				.maximumSessions(1)
+				/*
+				 * Se uma sessão for invalidade por acesso concorrente, posso redirecionar o
+				 * usuário para uma página mais bonita, ao invés de dar aquela mensagem em
+				 * inglês. Posso colocar uma mensagem dizendo que alguém acessou com meu usuário
+				 * em outro lugar e talz. Mas no nosso caso, somente vamos redirecionar para a
+				 * tela de login.
+				 */
+//				.expiredUrl("/login");
 
-				/* Desabilito o CSRF. É muito importante. O default é habilitado. Foi desabilitado somente para desenvolvimento. */
+		/*
+		 * Desabilito o CSRF. É muito importante. O default é habilitado. Foi
+		 * desabilitado somente para desenvolvimento.
+		 */
 //				.and().csrf().disable();
 	}
 
