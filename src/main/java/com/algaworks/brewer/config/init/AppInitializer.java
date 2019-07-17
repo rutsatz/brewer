@@ -4,7 +4,6 @@ import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration.Dynamic;
 
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import com.algaworks.brewer.config.JPAConfig;
@@ -31,11 +30,18 @@ public class AppInitializer extends AbstractAnnotationConfigDispatcherServletIni
 
 	@Override
 	protected Filter[] getServletFilters() {
-		CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
-		characterEncodingFilter.setEncoding("UTF-8");
-		characterEncodingFilter.setForceEncoding(true);
+		/*
+		 * Quando foi adicionado o Spring Security, esse filtro não funciona mais. Eu
+		 * preciso mover isso para o SecurityInitializer, colocando antes do
+		 * SpringSecurity aplicar seus filtros.
+		 */
+//		import org.springframework.web.filter.CharacterEncodingFilter;
 
-		return new Filter[] { characterEncodingFilter };
+//		CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
+//		characterEncodingFilter.setEncoding("UTF-8");
+//		characterEncodingFilter.setForceEncoding(true);
+
+		return new Filter[] {};
 	}
 
 	@Override
