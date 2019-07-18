@@ -8,4 +8,15 @@
 		<session-timeout>20</session-timeout>
 	</session-config>
 
+	<error-page>
+		<error-code>404</error-code>
+		<!-- Se ocorrer um erro 404, faça uma requisição para url /404. -->
+		<location>/404</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/500</location>
+	</error-page>
+
 </web-app>
