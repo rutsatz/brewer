@@ -76,7 +76,8 @@ public class UsuariosImpl implements UsuariosQueries {
 			 * LazyInitializationException, pois os grupos são um relacionamento ToMany e
 			 * qualquer coisa ToMany é lazy. E como é algo específico, não vou marcar como
 			 * eager, vou fazer um join. Preciso colocar o LEFT_OUTER_JOIN, pois senão o
-			 * erro do LazyException continua acontecendo.
+			 * erro do LazyException continua acontecendo. Isso pois com o LEFT o Hibernate
+			 * já inicializa a lista Grupos. Se não colocar e deixar o INNER, ele não inicializa.
 			 */
 			criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
 			if (filtro.getGrupos() != null && !filtro.getGrupos().isEmpty()) {
