@@ -14,6 +14,8 @@ import com.algaworks.brewer.repository.helper.usuario.UsuariosQueries;
 public interface Usuarios extends JpaRepository<Usuario, Long>, UsuariosQueries {
 
     public Optional<Usuario> findByEmail(String email);
+    
+    public List<Usuario> findByCodigoIn(Long[] codigos);
 
     /* Exemplo de consulta usando o @Query do JPA direto na interface. */
     @Query(value = "select distinct p.nome from Usuario u inner join u.grupos g inner join g.permissoes p where u = :usuario")

@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
@@ -19,11 +20,16 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.algaworks.brewer.validation.AtributoConfirmacao;
 
 @AtributoConfirmacao(atributo = "senha", atributoConfirmacao = "confirmacaoSenha", message = "Confirmação da senha não confere")
 @Entity
 @Table(name = "usuario")
+/* Quando atualizo somente um campo, ele manda somente esse campo no update. Sem isso, ele sempre
+ * adiciona todos os campos, independente se foram atualizados ou não. */
+@DynamicUpdate
 public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -62,6 +68,13 @@ public class Usuario implements Serializable {
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
 
+	@PreUpdate
+	private void preUpdate() {
+	    /* Quando estiver editando, coloca a confirmação de senha igual a senha,
+	     * pois se não, ele não deixa salvar o usuário por causa da annotation @AtributoConfirmacao. */
+	    this.confirmacaoSenha = senha;
+	}
+	
 	public Long getCodigo() {
 		return codigo;
 	}

@@ -50,6 +50,11 @@
 #####################
 */
 
+/* Colunas comuns */
+.table-col-acoes {
+	width: 80px;
+}
+
 /* Colunas - Pesquisa de Cervejas */
 .table-cervejas-col-foto {
 	min-width: 50px;
@@ -112,6 +117,21 @@
 	text-align: right;
 }
 
+/* Colunas - Pesquisa de cidades */
+.table-cidades-col-nome {
+	
+}
+
+.table-cidades-col-estado {
+	width: 140px;
+	text-align: right;
+}
+
+/* Colunas - Pesquisa de usuários */
+.table-usuarios-col-status {
+	width: 30px;
+}
+
 /*
 ######################################
 # CUSTOMIZAÇÃO DE COMPONENTES
@@ -136,7 +156,7 @@ Código original.
 
 Então foi colocado um "+ input +" no meio, pois o thymeleaf sempre adiciona o input hidden.
 */
-.checkbox input[type="checkbox"]:checked + input + label::after {
+.checkbox input[type="checkbox"]:checked+input+label::after {
 	font-family: 'FontAwesome';
 	content: "\f00c";
 }
