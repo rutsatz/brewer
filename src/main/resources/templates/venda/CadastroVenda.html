@@ -74,7 +74,6 @@
 					</span>
 					</div>
 
-					<th:block th:replace="cliente/PesquisaRapidaClientes :: pesquisaRapidaClientes"></th:block>
 				</div>
 
 				<div class="form-group  col-sm-4 bw-required">
@@ -162,17 +161,26 @@
 			</div>
 		</form>
 	</div>
+	
+	<!-- Coloca aqui, pois ele tem um form dentro, e não é bom deixar um form dentro de outro.
+	E colocar aqui em baixo não faz diferença, só a questão do form mesmo. -->
+	<th:block th:replace="cliente/PesquisaRapidaClientes :: pesquisaRapidaClientes"></th:block>
+	
 </section>
 
 <th:block layout:fragment="javascript-extra">
-<script>
-$(function() {
-	$('.js-abas-venda a').click(function (e) {
-		e.preventDefault();
-		$(this).tab('show');
+
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/cliente.pesquisa-rapida.js}"></script>
+
+	<script>
+	$(function() {
+		$('.js-abas-venda a').click(function (e) {
+			e.preventDefault();
+			$(this).tab('show');
+		});
 	});
-});
-</script>
+	</script>
 </th:block>
 
 </html>

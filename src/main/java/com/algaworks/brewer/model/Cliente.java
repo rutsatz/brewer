@@ -25,6 +25,7 @@ import org.hibernate.validator.group.GroupSequenceProvider;
 import com.algaworks.brewer.model.validation.ClienteGroupSequenceProvider;
 import com.algaworks.brewer.model.validation.group.CnpjGroup;
 import com.algaworks.brewer.model.validation.group.CpfGroup;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "cliente")
@@ -64,6 +65,12 @@ public class Cliente implements Serializable {
 	@Email(message = "E-mail inválido")
 	private String email;
 
+	/*
+	 * ignora no json pois na tela de pesquisa rapida nao precisa do endereco. Como
+	 * ele não foi inicializado, vai dar exception no jackson. Se eu quiser o
+	 * endereco, preciso inicializá-lo. E tbm todo o resto, como a cidade, etc.
+	 */
+	@JsonIgnore
 	@Embedded
 	private Endereco endereco;
 
