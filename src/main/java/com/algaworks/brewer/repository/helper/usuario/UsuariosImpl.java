@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -16,6 +17,10 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -23,11 +28,15 @@ import com.algaworks.brewer.model.Grupo;
 import com.algaworks.brewer.model.Usuario;
 import com.algaworks.brewer.model.UsuarioGrupo;
 import com.algaworks.brewer.repository.filter.UsuarioFilter;
+import com.algaworks.brewer.repository.paginacao.PaginacaoUtil;
 
 public class UsuariosImpl implements UsuariosQueries {
 
 	@PersistenceContext
 	private EntityManager manager;
+
+	@Autowired
+	private PaginacaoUtil paginacaoUtil;
 
 	@Override
 	public Optional<Usuario> porEmailEAtivo(String email) {
@@ -47,7 +56,7 @@ public class UsuariosImpl implements UsuariosQueries {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public List<Usuario> filtrar(UsuarioFilter filtro) {
+	public Page<Usuario> filtrar(UsuarioFilter filtro, Pageable pageable) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
 
 		/*
@@ -56,9 +65,28 @@ public class UsuariosImpl implements UsuariosQueries {
 		 * diferentes. Aí para eliminar esses usuários repetidos.
 		 */
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+		paginacaoUtil.preparar(criteria, pageable);
+
 		adicionarFiltro(filtro, criteria);
 
-		return criteria.list();
+		List<Usuario> filtrados = criteria.list();
+		/*
+		 * Como não consigo mais fazer o join dos grupos com o distinct por causa do
+		 * limit da paginação, eu preciso inicializar os grupos separadamente. Ai uso o
+		 * hibernate pra inicializar os grupos dos usuários que foram filtrados.
+		 */
+		filtrados.forEach(u -> Hibernate.initialize(u.getGrupos()));
+
+		return new PageImpl<>(filtrados, pageable, total(filtro));
+	}
+
+	/* Conta o total de linhas para o filtro informado. */
+	private Long total(UsuarioFilter filtro) {
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
+		adicionarFiltro(filtro, criteria);
+		criteria.setProjection(Projections.rowCount());
+		return (Long) criteria.uniqueResult();
 	}
 
 	private void adicionarFiltro(UsuarioFilter filtro, Criteria criteria) {
@@ -77,9 +105,15 @@ public class UsuariosImpl implements UsuariosQueries {
 			 * qualquer coisa ToMany é lazy. E como é algo específico, não vou marcar como
 			 * eager, vou fazer um join. Preciso colocar o LEFT_OUTER_JOIN, pois senão o
 			 * erro do LazyException continua acontecendo. Isso pois com o LEFT o Hibernate
-			 * já inicializa a lista Grupos. Se não colocar e deixar o INNER, ele não inicializa.
+			 * já inicializa a lista Grupos. Se não colocar e deixar o INNER, ele não
+			 * inicializa.
+			 * 
+			 * Foi removido esse join, pois ao adicionar a paginação, é adicionado um limit,
+			 * que faz com que a consulta não veja todos os registros fazendo com que o
+			 * distinct que adicionamos lá em cima não funcione. Terei que inicializar os
+			 * grupos separadamente.
 			 */
-			criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
+//			criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
 			if (filtro.getGrupos() != null && !filtro.getGrupos().isEmpty()) {
 				List<Criterion> subqueries = new ArrayList<>();
 				for (Long codigoGrupo : filtro.getGrupos().stream().mapToLong(Grupo::getCodigo).toArray()) {
