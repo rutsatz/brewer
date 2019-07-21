@@ -20,6 +20,14 @@ Brewer.PesquisaRapidaCliente = (function() {
 
 	PesquisaRapidaCliente.prototype.iniciar = function() {
 		this.pesquisaRapidaBtn.on('click', onPesquisaRapidaClicado.bind(this));
+		/* Evento do bootstrapt ao exibir o modal. */
+		this.pesquisaRapidaClientesModal.on('shown.bs.modal', onModalShow
+				.bind(this));
+	}
+
+	function onModalShow() {
+		/* Coloca o foco no input do nome. */
+		this.nomeInput.focus();
 	}
 
 	function onPesquisaRapidaClicado(event) {
@@ -43,6 +51,7 @@ Brewer.PesquisaRapidaCliente = (function() {
 	}
 
 	function onPesquisaConcluida(resultado) {
+		this.mensagemErro.addClass('hidden');
 		/*
 		 * Processa o template do handlebars, passando o array de clientes. Ele
 		 * me retorna o html depois de realizar o processamento.
@@ -53,7 +62,15 @@ Brewer.PesquisaRapidaCliente = (function() {
 		 * processado pelo handlebars.
 		 */
 		this.containerTabelaPesquisa.html(html);
-		this.mensagemErro.addClass('hidden');
+
+		/*
+		 * Cria um objeto separado para trabalhar com a tabela do resultado da
+		 * pesquisa. Isso porque a cada pesquisa, essa tabela é renderizada
+		 * novamente pelo handlebars.
+		 */
+		var tabelaClientePesquisaRapida = new Brewer.TabelaClientePesquisaRapida(
+				this.pesquisaRapidaClientesModal);
+		tabelaClientePesquisaRapida.iniciar();
 	}
 
 	function onErroPesquisa() {
@@ -62,6 +79,44 @@ Brewer.PesquisaRapidaCliente = (function() {
 	}
 
 	return PesquisaRapidaCliente;
+
+}());
+
+Brewer.TabelaClientePesquisaRapida = (function() {
+
+	function TabelaClientePesquisaRapida(modal) {
+		/*
+		 * Recebe o modal do cliente por parâmetro para poder fechá-lo quando o
+		 * usuário selecionar.
+		 */
+		this.modalCliente = modal;
+		/* Recupera as rows da tabela de clientes. */
+		this.cliente = $('.js-cliente-pesquisa-rapida');
+	}
+
+	TabelaClientePesquisaRapida.prototype.iniciar = function() {
+		/*
+		 * Adiciona os eventos de click nas linhas da tabela, para capturar o
+		 * cliente selecionado.
+		 */
+		this.cliente.on('click', onClienteSelecionado.bind(this));
+	}
+
+	function onClienteSelecionado(evento) {
+		/* Esconde o modal. */
+		this.modalCliente.modal('hide');
+
+		/* Pega a linha selecionada. */
+		var clienteSelecionado = $(evento.currentTarget);
+		/*
+		 * Pega os dados da linha selecionada e já seta lá nos inputs da tela da
+		 * venda.
+		 */
+		$('#nomeCliente').val(clienteSelecionado.data('nome'));
+		$('#codigoCliente').val(clienteSelecionado.data('codigo'));
+	}
+
+	return TabelaClientePesquisaRapida;
 
 }());
 

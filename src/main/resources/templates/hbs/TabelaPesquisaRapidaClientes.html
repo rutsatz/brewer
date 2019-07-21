@@ -15,7 +15,11 @@
 				direto com o handlebars. Dessa forma, eu itero sobre o array que estou
 				recebendo. -->
 				{{#each .}}
-					<tr>
+					<!-- Adiciona o código do cliente em cada row, para poder setar na tela
+					principal quando o usuário selecionar. O próprio handlebars já consegue
+					preencher esses campos, pois tem o mesmo nome que no objeto que recebeu
+					por parâmetro. -->
+					<tr data-codigo="{{codigo}}" data-nome="{{nome}}" class="js-cliente-pesquisa-rapida">
 						<td>{{nome}}</td>
 						<td>{{telefone}}</td>
  					</tr>
