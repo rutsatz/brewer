@@ -2,6 +2,8 @@ package com.algaworks.brewer.dto;
 
 import java.math.BigDecimal;
 
+import org.springframework.util.StringUtils;
+
 import com.algaworks.brewer.model.Origem;
 
 public class CervejaDTO {
@@ -25,7 +27,8 @@ public class CervejaDTO {
 		this.nome = nome;
 		this.origem = origem.getDescricao();
 		this.valor = valor;
-		this.foto = foto;
+		/* Se não tiver a foto salva, retorna o mock. */
+		this.foto = StringUtils.isEmpty(foto) ? "cerveja-mock.png" : foto;
 	}
 
 	public Long getCodigo() {

@@ -123,6 +123,15 @@ Brewer.Security = (function() {
 
 }());
 
+/* Cria uma função estática. */
+Brewer.formatarMoeda = function(valor) {
+	/* Seleciona o idioma do Brasil. */
+	numeral.locale('pt-br');
+	/* Digo que quero duas casas decimais e separador de milhar. Uso essa mascára
+	 * do NumeralJs e ele converte para o idioma selecionado. */
+	return numeral(valor).format('0,0.00');
+}
+
 /* Função ready do jQuery. */
 $(function() {
 	var maskMoney = new Brewer.MaskMoney();
