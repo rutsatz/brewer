@@ -44,13 +44,7 @@ public class TabelaItensVenda {
 
 	public void adicionarItem(Cerveja cerveja, Integer quantidade) {
 	    
-	    /* Percorro o meu carrinho de compras. */
-	    Optional<ItemVenda> itemVendaOptional = itens.stream()
-	        /* Filtro para ver se o item que estou adicionando já existe no carrinho.
-	         * Ele retorna um stream somente com as cervejas filtradas, ou seja, que já existem. */
-	        .filter(i -> i.getCerveja().equals(cerveja))
-	        /* Uso o findAny somente para saber se já existe a cerveja ou não. Ele me retorna um Optional. */
-	        .findAny();
+	    Optional<ItemVenda> itemVendaOptional = buscarItemPorCerveja(cerveja);
 	    
 	    ItemVenda itemVenda = null;
 	    /* Assim não preciso ficar verificando se é != null e talz. */
@@ -70,6 +64,15 @@ public class TabelaItensVenda {
 	    
 	}
 
+	
+	public void alterarQuantidadeItens(Cerveja cerveja, Integer quantidade) {
+	    /* Como estou editando a quantidade, então é pq a cerveja já existe. Não preciso fazer
+	     * os if lá do Optional. */
+	    ItemVenda itemVenda = buscarItemPorCerveja(cerveja).get();
+	    itemVenda.setQuantidade(quantidade);
+	    
+	}
+
 	public int total() {
 		return itens.size();
 	}
@@ -78,4 +81,13 @@ public class TabelaItensVenda {
         return this.itens;
     }
 
+    private Optional<ItemVenda> buscarItemPorCerveja(Cerveja cerveja) {
+        /* Percorro o meu carrinho de compras. */
+        return itens.stream()
+                        /* Filtro para ver se o item que estou adicionando já existe no carrinho.
+                         * Ele retorna um stream somente com as cervejas filtradas, ou seja, que já existem. */
+                        .filter(i -> i.getCerveja().equals(cerveja))
+                        /* Uso o findAny somente para saber se já existe a cerveja ou não. Ele me retorna um Optional. */
+                        .findAny();
+    }
 }

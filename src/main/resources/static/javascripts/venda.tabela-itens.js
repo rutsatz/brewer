@@ -36,13 +36,37 @@ Brewer.TabelaItens = (function() {
 		});
 
 		/** O servidor retorna um html para a página, com os itens. */
-		resposta.done(onItemAdicionadoNoServidor.bind(this));
+		resposta.done(onItemAtualizadoNoServidor.bind(this));
 	}
 
 	/** Recebe o html do servidor, que contém a lista de itens renderizada. */
-	function onItemAdicionadoNoServidor(html) {
+	function onItemAtualizadoNoServidor(html) {
 		/** Seta o html da lista renderizada no container de cervejas. */
 		this.tabelaCervejasContainer.html(html);
+		
+		/** Adiciona aqui, após receber o html dos itens do servidor, pois é somente depois de receber esse html
+		 * que eu tenho acesso ao input da quantidade de itens. */
+		$('.js-tabela-cerveja-quantidade-item').on('change', onQuantidadeItemAlterado.bind(this));
+	}
+	
+	/* Recebo o evento para pegar qual o input que sofreu alteração. */
+	function onQuantidadeItemAlterado(evento) {
+		/* Pego o input que foi alterado. */
+		var input = $(evento.target);
+		var quantidade = input.val();
+		var codigoCerveja = input.data('codigo-cerveja');
+		
+		var resposta = $.ajax({
+			url: 'item/' + codigoCerveja,
+			method: 'PUT',
+			data: {
+				quantidade: quantidade
+			}
+		});
+		
+		/* Essa nossa requisição para alterar a quantidade retorna o html renderizado da lista de itens,
+		 * então chamo a função que já existe e que já trata isso. */
+		resposta.done(onItemAtualizadoNoServidor.bind(this));
 	}
 	
 	return TabelaItens;
