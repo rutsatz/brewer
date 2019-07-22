@@ -27,8 +27,8 @@ Brewer.Autocomplete = (function() {
 			 * retornar uma string com a url da pesquisa. Ai ele vai chamar essa function
 			 * para pegar a url na hora de fazer a requisição. */
 			url: function(skuOuNome) {
-				return '/brewer/cervejas?skuOuNome=' + skuOuNome;
-			},
+				return this.skuOuNomeInput.data('url') + '?skuOuNome=' + skuOuNome;
+			}.bind(this),
 			/* Campo que deve aparecer. Nesse caso, pega o campo nome da requisição Ajax,
 			 * que é o nome da cerveja. */
 			getValue: 'nome',
@@ -69,6 +69,10 @@ Brewer.Autocomplete = (function() {
 	function onItemSelecionado() {
 		/* Lança um evento de item selecionado, passando os dados da cerveja. */
 		this.emitter.trigger('item-selecionado', this.skuOuNomeInput.getSelectedItemData());
+		/* Limpa o input da pesquisa do autocomplete. */
+		this.skuOuNomeInput.val('');
+		/* E também seta o foco nele. */
+		this.skuOuNomeInput.focus();
 	}
 	
 	function template(nome, cerveja) {

@@ -3,6 +3,7 @@ package com.algaworks.brewer.session;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
@@ -42,12 +43,31 @@ public class TabelaItensVenda {
 	}
 
 	public void adicionarItem(Cerveja cerveja, Integer quantidade) {
-		ItemVenda itemVenda = new ItemVenda();
-		itemVenda.setCerveja(cerveja);
-		itemVenda.setQuantidade(quantidade);
-		itemVenda.setValorUnitario(cerveja.getValor());
-
-		itens.add(itemVenda);
+	    
+	    /* Percorro o meu carrinho de compras. */
+	    Optional<ItemVenda> itemVendaOptional = itens.stream()
+	        /* Filtro para ver se o item que estou adicionando já existe no carrinho.
+	         * Ele retorna um stream somente com as cervejas filtradas, ou seja, que já existem. */
+	        .filter(i -> i.getCerveja().equals(cerveja))
+	        /* Uso o findAny somente para saber se já existe a cerveja ou não. Ele me retorna um Optional. */
+	        .findAny();
+	    
+	    ItemVenda itemVenda = null;
+	    /* Assim não preciso ficar verificando se é != null e talz. */
+	    if(itemVendaOptional.isPresent()) {
+	        itemVenda = itemVendaOptional.get();
+	        itemVenda.setQuantidade(itemVenda.getQuantidade() + quantidade);
+	    } else {	        
+	        itemVenda = new ItemVenda();
+	        itemVenda.setCerveja(cerveja);
+	        itemVenda.setQuantidade(quantidade);
+	        itemVenda.setValorUnitario(cerveja.getValor());
+	        
+	        /* Adiciono no inicio da lista, para a última cerveja sempre ficar no topo da minha lista
+	         * lá na tela. */
+	        itens.add(0, itemVenda);
+	    }
+	    
 	}
 
 	public int total() {
