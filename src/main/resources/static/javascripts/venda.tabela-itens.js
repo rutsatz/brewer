@@ -47,6 +47,10 @@ Brewer.TabelaItens = (function() {
 		/** Adiciona aqui, após receber o html dos itens do servidor, pois é somente depois de receber esse html
 		 * que eu tenho acesso ao input da quantidade de itens. */
 		$('.js-tabela-cerveja-quantidade-item').on('change', onQuantidadeItemAlterado.bind(this));
+		
+		/** Pego a div container de cada item e adiciono um evento de double click para mostrar a opção
+		 * de excluir o item. */
+		$('.js-tabela-item').on('dblclick', onDoubleClick);
 	}
 	
 	/* Recebo o evento para pegar qual o input que sofreu alteração. */
@@ -67,6 +71,22 @@ Brewer.TabelaItens = (function() {
 		/* Essa nossa requisição para alterar a quantidade retorna o html renderizado da lista de itens,
 		 * então chamo a função que já existe e que já trata isso. */
 		resposta.done(onItemAtualizadoNoServidor.bind(this));
+	}
+	
+	function onDoubleClick(evento) {
+		/** O target é o componente que eu cliquei. Se eu clicar na imagem, o targer vai ser o <img>. Por isso eu não posso
+		 * usar o $(evento.target). Eu preciso pegar a div externa, que é o container. Então eu pego o elemento que
+		 * escutou o evento, pois é ela que tem o evento de double click. Então eu pego o currentTarget, que é quem 
+		 * escutou o evento. */
+//		 var item = $(evento.currentTarget);
+//		 item.toggleClass('solicitando-exclusao');
+		
+		/* Eu posso fazer um atalho para o currentTarget. Quem escutou o evento foi o this, pois o this é o currentTarget.
+		 * Dessa forma, posso fazer direto.
+		 *
+		 * Ai adicionamos essa classe marcadora para saber qual item vai ser excluido e exibir a mensagem de confirmação. */
+		$(this).toggleClass('solicitando-exclusao');
+		
 	}
 	
 	return TabelaItens;
