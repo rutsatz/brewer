@@ -1,18 +1,39 @@
 package com.algaworks.brewer.config;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.context.annotation.Description;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.OAuth2ClientContext;
+import org.springframework.security.oauth2.client.OAuth2RestOperations;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
+import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
+import org.springframework.security.oauth2.common.AuthenticationScheme;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
+import com.algaworks.brewer.oauth2.google.GoogleUserInfoTokenServices;
 import com.algaworks.brewer.security.AppUserDetailsService;
 
 @EnableWebSecurity
@@ -21,186 +42,186 @@ import com.algaworks.brewer.security.AppUserDetailsService;
  * que ele usa para fazer o login através da nossa busca de usuário.
  */
 @ComponentScan(basePackageClasses = AppUserDetailsService.class)
+
+@EnableOAuth2Client
+@PropertySource("classpath:google-oauth2.properties")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+	// This is made possible because of @EnableOAuth2Client
+	// and RequestContextListener.
 	@Autowired
-	private UserDetailsService userDetailsService;
+	private OAuth2ClientContext oauth2ClientContext;
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		/* Usuário em memória, para testes. */
-//		auth.inMemoryAuthentication().withUser("admin").password("admin").roles("CADASTRO_CLIENTE");
+	/**
+	 * <p>
+	 * Handles a {@link UserRedirectRequiredException} that is thrown from
+	 * {@link OAuth2ClientAuthenticationProcessingFilter}.
+	 * </p>
+	 * <p>
+	 * This bean is configured because of <code>@EnableOAuth2Client</code>.
+	 * </p>
+	 */
+	@Autowired
+	private OAuth2ClientContextFilter oauth2ClientContextFilter;
 
+	@Value("${oauth2.clientId}")
+	private String clientId;
+
+	@Value("${oauth2.clientSecret}")
+	private String clientSecret;
+
+	@Value("${oauth2.userAuthorizationUri}")
+	private String userAuthorizationUri;
+
+	@Value("${oauth2.accessTokenUri}")
+	private String accessTokenUri;
+
+	@Value("${oauth2.tokenName:authorization_code}")
+	private String tokenName;
+
+	@Value("${oauth2.scope}")
+	private String scope;
+
+	@Value("${oauth2.userInfoUri}")
+	private String userInfoUri;
+
+	@Value("${oauth2.filterCallbackPath}")
+	private String oauth2FilterCallbackPath;
+
+	private OAuth2ProtectedResourceDetails authorizationCodeResource() {
+		AuthorizationCodeResourceDetails details = new AuthorizationCodeResourceDetails();
+		details.setId("google-oauth-client");
+		details.setClientId(clientId);
+		details.setClientSecret(clientSecret);
+		details.setUserAuthorizationUri(userAuthorizationUri);
+		details.setAccessTokenUri(accessTokenUri);
+		details.setTokenName(tokenName);
+		String commaSeparatedScopes = scope;
+		details.setScope(parseScopes(commaSeparatedScopes));
+		// Defaults to use current URI
 		/*
-		 * Configuramos a forma de autenticação. Estamos fornecendo o serviço de
-		 * autenticação, que é o userDetailsService que nós implementamos, e que
-		 * adicionamos a regra de buscar o usuários no banco de dados. E também
-		 * precisamos passar o encoder que usamos para criptografar a senha, se não o
-		 * SpringSecurity vai achar que é texto puro, mas no banco está criptografado.
-		 * Eu somente vou buscar no banco, pelo email e se está ativo, mas vai ser o
-		 * Spring que vai fazer a comparação da senha.
+		 * If a pre-established redirect URI is used, it will need to be an
+		 * absolute URI. To do so, it'll need to compute the URI from a
+		 * request. The HTTP request object is available when you override
+		 * OAuth2ClientAuthenticationProcessingFilter#attemptAuthentication().
+		 *
+		 * details.setPreEstablishedRedirectUri(
+		 * 		env.getProperty("oauth2.redirectUrl"));
+		 * details.setUseCurrentUri(false);
 		 */
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+		details.setAuthenticationScheme(AuthenticationScheme.query);
+		details.setClientAuthenticationScheme(AuthenticationScheme.form);
+		return details;
+	}
+
+	private List<String> parseScopes(String commaSeparatedScopes) {
+		List<String> scopes = new LinkedList<>();
+		Collections.addAll(scopes, commaSeparatedScopes.split(","));
+		return scopes;
+	}
+
+	/**
+	 * @return an OAuth2 client authentication processing filter
+	 */
+	@Bean
+	@Description("Filter that checks for authorization code, "
+			+ "and if there's none, acquires it from authorization server")
+	public OAuth2ClientAuthenticationProcessingFilter
+				oauth2ClientAuthenticationProcessingFilter() {
+		// Used to obtain access token from authorization server (AS)
+		OAuth2RestOperations restTemplate = new OAuth2RestTemplate(
+				authorizationCodeResource(),
+				oauth2ClientContext);
+		OAuth2ClientAuthenticationProcessingFilter filter =
+				new OAuth2ClientAuthenticationProcessingFilter(oauth2FilterCallbackPath);
+		filter.setRestTemplate(restTemplate);
+		// Set a service that validates an OAuth2 access token
+		// We can use either Google API's UserInfo or TokenInfo
+		// For this, we chose to use UserInfo service
+		filter.setTokenServices(googleUserInfoTokenServices());
+		return filter;
+	}
+
+	@Bean
+	@Description("Google API UserInfo resource server")
+	public GoogleUserInfoTokenServices googleUserInfoTokenServices() {
+		GoogleUserInfoTokenServices userInfoTokenServices =
+				new GoogleUserInfoTokenServices(userInfoUri, clientId);
+		// TODO Configure bean to use local database to read authorities
+		// userInfoTokenServices.setAuthoritiesExtractor(authoritiesExtractor);
+		return userInfoTokenServices;
+	}
+
+	@Bean
+	public AuthenticationEntryPoint authenticationEntryPoint() {
+		// May need an OAuth2AuthenticationEntryPoint for non-browser clients
+		return new LoginUrlAuthenticationEntryPoint(oauth2FilterCallbackPath);
 	}
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web
-				/*
-				 * Posso ignorar a autenticação de algumas urls. Ao invés de ficar adicionando
-				 * as exceções no authorizeRequests do configure do HttpSecurity, eu posso
-				 * adicionar todas elas diretamente aqui.
-				 */
-				.ignoring().antMatchers("/layout/**").antMatchers("/images/**");
+		web.ignoring().antMatchers(
+				"/", "/static/**", "/webjars/**");
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
-		http
-				/* Eu quero autorizar requisições. */
-				.authorizeRequests()
-				/*
-				 * Adiciono uma configuração de permissão. Estou dizendo que para acessar o
-				 * cadastro de cidades (/cidades/nova) eu preciso ter a permissão de
-				 * CADASTRAR_CIDADE. Essa é a coluna nome cadastrada na tabela permissão.
-				 * Preciso cuidar a ordem. Se eu colocasse essa linha abaixo, depois do
-				 * .anyRequest().authenticated(), ele iria liberar acesso sempre, mesmo sem ter
-				 * a role, pois o SpringSecurity vai avaliando na sequência que eu defino. Então
-				 * ele viria e olharia que ele precisa verificar as autorizações e depois
-				 * olharia que para qualquer requisição, ele precisa estar autenticado. Aí, opa!
-				 * Está autenticado, pode liberar. Ele nem avaliaria essa nossa regra que está
-				 * depois, pois ele encontrou um match antes e liberou o acesso.
-				 *
-				 * Por isso preciso definir primeiro o que quero bloquear, e por fim deixar
-				 * liberado o resto.
-				 *
-				 * E se for usar o hasRole(), preciso salvar no banco de dados as permissões com
-				 * o prefixo ROLE_. Se não quiser salvar no banco com esse prefixo, ai eu tenho
-				 * que usar outro método, o hasAuthority().
-				 */
-				.antMatchers("/cidades/nova").hasRole("CADASTRAR_CIDADE")
-				/*
-				 * Do usuário pra frente, precisa ter a role de cadastro de usuário. Essa é uma
-				 * expressão ANT. Aí tanto o cadastro quanto a pesquisa precisam dessa role.
-				 */
-				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
-				/*
-				 * Permite qualquer um acessar os arquivos do "/layout" para frente, pois na
-				 * tela de login ele precisa carregar esses arquivos. Porém se ele tentar
-				 * carregar os ".css" e ".js" do layout sem ter essas urls liberadas, vai dar
-				 * erro, pois ao requisitar os arquivos, a requisição vai ser redirecionada para
-				 * a página de login. Aí, ao invés de vir um arquivo ".js", por exemplo, vai vir
-				 * o html da página de login. Então pra poder acessar o login sem problemas, eu
-				 * libero os arquivos do layout. E o layout também não tem nenhum problema em
-				 * liberar sem estar logado.
-				 *
-				 * Cuidar para a ordem, pois faz toda a diferença. Se eu colocar esse matcher
-				 * pra baixo já não vai funcionar. Ele funciona assim: Eu adiciono todas as urls
-				 * que quero liberar e quando chamo o anyRequest e authenticated, ele bloquea
-				 * todas as demais requisições que não foram liberadas.
-				 */
-//				.antMatchers("/layout/**").permitAll() // Tirado daqui e colocado no configure do WebSecurity
-				/*
-				 * Para as imagens a mesma coisa. Eu tenho o logo na tela de login, mas ele está
-				 * dentro da pasta images, e não dentro do layout. Então tenho que liberar tbm.
-				 */
-//				.antMatchers("/images/**").permitAll() // Tirado daqui e colocado no configure do WebSecurity
-				/*
-				 * Quais requisições? Qualquer uma.
-				 */
-				.anyRequest()
-				/*
-				 * Para qualquer uma eu preciso estar autenticado (Não preciso de uma permissão
-				 * especial, como vendedor ou administrador, somente preciso ter logado com
-				 * usuário e senha).
-				 */
-				.authenticated()
-				/*
-				 * Se eu quiser bloquear qualquer outra página que tenha sobra, ao invés de
-				 * liberar, eu tiro o .authenticated() e coloco o .denyAll(). Eu uso um ou
-				 * outro, se deixar os dois .anyRequest(), pode ser que de problema no
-				 * SpringSecutiry.
-				 */
-//				.denyAll()
-				/* Volto para o objeto anterior e posso continuar configurando. */
-				.and()
-				/* Habilito o form de login. */
+		http.exceptionHandling()
+					.authenticationEntryPoint(authenticationEntryPoint())
+			.and()
 				.formLogin()
-				/*
-				 * Digo a url do formulário de login. (Se eu não chamar esse método, o Spring
-				 * gera uma página default)
-				 */
 				.loginPage("/login")
-				/*
-				 * Na tela de login, permite o acesso de qualquer pessoa. Se eu não fizer isso,
-				 * quando for acessar o "/login", vai cair no authenticated lá de cima que vai
-				 * ver que para qualquer url eu preciso estar autenticado. Ai qual é a página de
-				 * login? "/login". Então manda para o "/login". Mas eu não estou autenticado
-				 * para poder acessar a url "/login", então como eu autentico? No "/login". Ou
-				 * seja, ele entra nesse loop infinito. Por isso, para o "/login", eu preciso
-				 * permitir o acesso de qualquer um, sem autenticação.
-				 */
 				.permitAll()
-				/* Volto para o objeto anterior. */
-				.and()
-				/* Configura o logout do sistema. */
+					
+			.and()
+				.authorizeRequests()
+					.anyRequest().authenticated()
+			.and()
 				.logout()
-				/*
-				 * Com o CSRF habilitado, preciso liberar o /logout para qualquer usuário, pois
-				 * pro logout não tem problema. Caso contrário, vai dar 404 se tentar fazer
-				 * logout com o CSRF habilitado.
-				 */
-				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).and()
-				/* Faz o tratamento das exceções, como acesso negado, por exemplo. */
-				.exceptionHandling()
-				/*
-				 * Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado.
-				 * Eu preciso ter essa página mapeada. (Colocamos no SegurancaController)
-				 */
-				.accessDeniedPage("/403").and()
-				/* Configurações relacionadas a sessão. */
-				.sessionManagement()
-				/*
-				 * Quando a sessão está invalida e eu deixei uma tela aberta, por exemplo, uma
-				 * tela de cadastro e após a sessão expirar, eu clicar em salvar, ele vai dar um
-				 * erro 405, pq a minha sessão expirou. Mas ao invés de exibir o erro para o
-				 * usuário, posso redirecioná-lo para a tela de login. Eu também poderia criar
-				 * minha própria página, se eu quisesse, dizendo sessão inválida, faça o login
-				 * novamente ou algo assim.
-				 *
-				 * Esse problema somente acontece se eu mandar um post de uma página expirada.
-				 * Se eu mandar um get, o spring redireciona para o login automaticamente. E no
-				 * caso do get, ao fazer o login, ele me redireciona para a página q eu tinha
-				 * tentado acessar. No caso do post, ele manda para a página default do sistema.
-				 */
-				.invalidSessionUrl("/login");
-		/*
-		 * Digo quantas sessões o usuário pode ter ativas ao mesmo tempo. O default é
-		 * ilimitado. Se eu coloco 1, se ele estiver logado em um computador e se logar
-		 * em outro, a primeira sessão é invalidade.
-		 */
-//				.maximumSessions(1)
-		/*
-		 * Se uma sessão for invalidade por acesso concorrente, posso redirecionar o
-		 * usuário para uma página mais bonita, ao invés de dar aquela mensagem em
-		 * inglês. Posso colocar uma mensagem dizendo que alguém acessou com meu usuário
-		 * em outro lugar e talz. Mas no nosso caso, somente vamos redirecionar para a
-		 * tela de login.
-		 */
-//				.expiredUrl("/login");
-
-		/*
-		 * Desabilito o CSRF. É muito importante. O default é habilitado. Foi
-		 * desabilitado somente para desenvolvimento.
-		 */
-//				.and().csrf().disable();
+					.logoutUrl("/logout")
+					.logoutSuccessUrl("/login")
+			/* No need for form-based login or basic authentication
+			.and()
+				.formLogin()
+					.loginPage("...")
+					.loginProcessingUrl("...")
+			.and()
+				.httpBasic()
+			 */
+			.and()
+				.addFilterAfter(
+					oauth2ClientContextFilter,
+					ExceptionTranslationFilter.class)
+				.addFilterBefore(
+					oauth2ClientAuthenticationProcessingFilter(),
+					FilterSecurityInterceptor.class)
+				.anonymous()
+				// anonymous login must be disabled,
+				// otherwise an anonymous authentication will be created,
+				// and the UserRedirectRequiredException will not be thrown,
+				// and the user will not be redirected to the authorization server
+					.disable();
 	}
 
-	/* Configura o gerador de senhas. Usado para criptografar a senha do usuário. */
+	@Override
+	protected AuthenticationManager authenticationManager() throws Exception {
+		return new NoopAuthenticationManager();
+	}
+
+	private static class NoopAuthenticationManager implements AuthenticationManager {
+		@Override
+		public Authentication authenticate(Authentication authentication)
+				throws AuthenticationException {
+			throw new UnsupportedOperationException(
+					"No authentication should be done with this AuthenticationManager");
+		}
+	}
+	
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+	@Description("Enables ${...} expressions in the @Value annotations"
+			+ " on fields of this configuration. Not needed if one is"
+			+ " already available.")
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
 	}
 
 }

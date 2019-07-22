@@ -2,8 +2,11 @@ package com.algaworks.brewer.config.init;
 
 import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration.Dynamic;
 
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.HttpPutFormContentFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -14,6 +17,17 @@ import com.algaworks.brewer.config.WebConfig;
 
 public class AppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException {
+		super.onStartup(servletContext);
+		/*
+		 * Needed to support a "request" scope in Spring Security filters,
+		 * since they're configured as a Servlet Filter. But not necessary
+		 * if they're configured as interceptors in Spring MVC.
+		 */
+		servletContext.addListener(new RequestContextListener());
+	}
+	
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		return new Class<?>[] { JPAConfig.class, ServiceConfig.class, SecurityConfig.class };

@@ -19,8 +19,8 @@ public class CadastroUsuarioService {
 	@Autowired
 	private Usuarios usuarios;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+//	@Autowired
+//	private PasswordEncoder passwordEncoder;
 
 	@Transactional
 	public void salvar(Usuario usuario) {
@@ -35,7 +35,7 @@ public class CadastroUsuarioService {
 
 		/* Criptografa a senha do usuário. */
 		if (usuario.isNovo()) {
-			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
+//			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
 			/*
 			 * Preciso setar a confirmacao da senha tbm, pois quando chega no JPA, ela tbm
 			 * executa os beans validations, e como eu alterei a senha, ele vai falhar ao
