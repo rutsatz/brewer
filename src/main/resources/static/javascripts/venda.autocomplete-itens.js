@@ -10,6 +10,14 @@ Brewer.Autocomplete = (function() {
 		var htmlTemplateAutocomplete = $('#template-autocomplete-cerveja').html();
 		/* Compila o template do handlebars e deixa pronto pra uso. */
 		this.template = Handlebars.compile(htmlTemplateAutocomplete);
+		/*  Cria um emissor de eventos, para notificar quem quiser ouvir quando
+		 * um item foi selecionado. */
+		this.emitter = $({});
+		/*
+		 * Esse objeto on é usado na tabela de itens para adicionar um listener e
+		 * ficar escutando os itens selecionados.
+		 */
+		this.on = this.emitter.on.bind(this.emitter);
 	}
 	
 	Autocomplete.prototype.iniciar = function() {
@@ -44,25 +52,35 @@ Brewer.Autocomplete = (function() {
 				 * do banco de dados (nesse caso, os dados da cerveja).
 				 * Ele executa essa função para cada linha que será renderizada.
 				 * Essa função já deve retornar o html que quero renderizar. */
-				method: function(nome, cerveja) {
-					cerveja.valorFormatado = Brewer.formatarMoeda(cerveja.valor);
-					/* Processa o template, passando o objeto cerveja por parâmetro. */
-					return this.template(cerveja);
-				}.bind(this)
+				method: template.bind(this)
+			},
+			list: {
+				/* Passo uma função para notificar a minha tabela de itens que um
+				 * item foi adicionado ao carrinho. */
+				onChooseEvent: onItemSelecionado.bind(this)
 			}
-		};
-		
+
+		}
+
 		/* Inicia o EasyAutoComplete no input. */
 		this.skuOuNomeInput.easyAutocomplete(options);
 	}
+
+	function onItemSelecionado() {
+		/* Lança um evento de item selecionado, passando os dados da cerveja. */
+		this.emitter.trigger('item-selecionado', this.skuOuNomeInput.getSelectedItemData());
+	}
 	
+	function template(nome, cerveja) {
+		cerveja.valorFormatado = Brewer.formatarMoeda(cerveja.valor);
+		/* Processa o template, passando o objeto cerveja por parâmetro. */
+		return this.template(cerveja);
+	}
+
 	return Autocomplete
 	
 }());
 
-$(function() {
-	
-	var autocomplete = new Brewer.Autocomplete();
-	autocomplete.iniciar();
-	
-})
+/* Removi a inicialização do Autocomplete daqui e levei para o venda.tabela-itens.js, pois
+ * a tabela de itens depende do autocomplete e preciso passa-lo por parametro para a tabela.
+ * Por isso movo ele para lá. */
