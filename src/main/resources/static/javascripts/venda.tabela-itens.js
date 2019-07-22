@@ -8,6 +8,7 @@ Brewer.TabelaItens = (function() {
 	/** Como dependo do autocomplete, recebo ele por parâmetro e deixo salvo. */
 	function TabelaItens(autocomplete) {
 		this.autocomplete = autocomplete;
+		this.tabelaCervejasContainer = $('.js-tabela-cervejas-container');
 	}
 
 	TabelaItens.prototype.iniciar = function() {
@@ -34,11 +35,16 @@ Brewer.TabelaItens = (function() {
 			}
 		});
 
-		resposta.done(function(data) {
-			console.log('retorno', data);
-		});
+		/** O servidor retorna um html para a página, com os itens. */
+		resposta.done(onItemAdicionadoNoServidor.bind(this));
 	}
 
+	/** Recebe o html do servidor, que contém a lista de itens renderizada. */
+	function onItemAdicionadoNoServidor(html) {
+		/** Seta o html da lista renderizada no container de cervejas. */
+		this.tabelaCervejasContainer.html(html);
+	}
+	
 	return TabelaItens;
 
 }());
