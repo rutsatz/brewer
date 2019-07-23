@@ -48,6 +48,11 @@ public class TabelasItensSession {
 		return buscarTabelaPorUuid(uuid).getItens();
 	}
 
+    public Object getValorTotal(String uuid) {
+        return buscarTabelaPorUuid(uuid).getValorTotal();
+    }
+
+	
 	private TabelaItensVenda buscarTabelaPorUuid(String uuid) {
 		/* Percore a lista de tabelas de itens da sessão do usuário. */
 		TabelaItensVenda tabela = tabelas.stream()

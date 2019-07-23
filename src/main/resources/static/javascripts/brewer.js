@@ -123,13 +123,23 @@ Brewer.Security = (function() {
 
 }());
 
+/* Colocado aqui para chamar somente uma vez, e não precisar ficar repetindo em cada método separado. */
+/* Seleciona o idioma do Brasil. */
+numeral.locale('pt-br');
+
 /* Cria uma função estática. */
 Brewer.formatarMoeda = function(valor) {
-	/* Seleciona o idioma do Brasil. */
-	numeral.locale('pt-br');
 	/* Digo que quero duas casas decimais e separador de milhar. Uso essa mascára
 	 * do NumeralJs e ele converte para o idioma selecionado. */
 	return numeral(valor).format('0,0.00');
+}
+
+/* Desformata um valor de um input, para poder ser usado em cálculos. */
+Brewer.recuperarValor = function(valorFormatado) {
+	/* Remove a formatação (Casas decimais, vírgulas, etc). */
+	/* Função unformat foi removido. */
+//	return numeral.unformat(valorFormatado);
+	return numeral(valorFormatado).value();
 }
 
 /* Função ready do jQuery. */

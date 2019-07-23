@@ -10,6 +10,8 @@ Brewer.TabelaItens = (function() {
 		this.autocomplete = autocomplete;
 		this.tabelaCervejasContainer = $('.js-tabela-cervejas-container');
 		this.uuid = $('#uuid').val();
+		this.emitter = $({});
+		this.on = this.emitter.on.bind(this.emitter);
 	}
 
 	TabelaItens.prototype.iniciar = function() {
@@ -51,17 +53,23 @@ Brewer.TabelaItens = (function() {
 		 * somente depois de receber esse html que eu tenho acesso ao input da
 		 * quantidade de itens.
 		 */
-		$('.js-tabela-cerveja-quantidade-item').on('change',
-				onQuantidadeItemAlterado.bind(this));
-
+		var quantidadeItemInput = $('.js-tabela-cerveja-quantidade-item');
+		quantidadeItemInput.on('change', onQuantidadeItemAlterado.bind(this));
+		/* Não deixa informar letras na quantidade. */
+		quantidadeItemInput.maskMoney({ precision: 0, thousands: '' });
 		/**
 		 * Pego a div container de cada item e adiciono um evento de double
 		 * click para mostrar a opção de excluir o item.
 		 */
-		$('.js-tabela-item').on('dblclick', onDoubleClick);
+		var tabelaItem = $('.js-tabela-item');
+		tabelaItem.on('dblclick', onDoubleClick);
 
 		/** Botão de confirmar a exclusão do item. */
 		$('.js-exclusao-item-btn').on('click', onExclusaoItemClick.bind(this));
+		
+		/* Ao atualizar os itens, notifica a venda com o novo valor total. Recupera o valor total através de um data,
+		 * que foi atribuido lá pelo servidor. */
+		this.emitter.trigger('tabela-itens-atualizada', tabelaItem.data('valor-total'));
 	}
 
 	/* Recebo o evento para pegar qual o input que sofreu alteração. */
@@ -69,6 +77,12 @@ Brewer.TabelaItens = (function() {
 		/* Pego o input que foi alterado. */
 		var input = $(evento.target);
 		var quantidade = input.val();
+		
+		if (quantidade <= 0) {
+			input.val(1);
+			quantidade = 1;
+		}
+		
 		var codigoCerveja = input.data('codigo-cerveja');
 
 		var resposta = $.ajax({
@@ -130,15 +144,3 @@ Brewer.TabelaItens = (function() {
 
 }());
 
-$(function() {
-	/**
-	 * Inicia o autocomplete aqui pois preciso passa-lo como dependencia para a
-	 * tabela de itens.
-	 */
-	var autocomplete = new Brewer.Autocomplete();
-	autocomplete.iniciar();
-
-	var tabelaItens = new Brewer.TabelaItens(autocomplete);
-	tabelaItens.iniciar();
-
-});
