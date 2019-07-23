@@ -27,6 +27,10 @@
 
 	<div class="container-fluid">
 		<form method="POST" th:action="@{/vendas/nova}">
+			
+			<!-- Identificador da tela, para a sessão ser por tela e não por usuário.
+			Se for por usuário, vai dar problema se o mesmo usuário abrir 2 abas no navegador. -->
+			<input type="hidden" id="uuid" th:value="${uuid}"/>
 
 			<div class="row">
 				<div class="col-sm-4">

@@ -1,5 +1,7 @@
 package com.algaworks.brewer.controller;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.repository.Cervejas;
-import com.algaworks.brewer.session.TabelaItensVenda;
+import com.algaworks.brewer.session.TabelasItensSession;
 
 @Controller
 @RequestMapping("/vendas")
@@ -22,11 +24,13 @@ public class VendasController {
 	private Cervejas cervejas;
 
 	@Autowired
-	private TabelaItensVenda tabelaItensVenda;
+	private TabelasItensSession tabelaItens;
 
 	@GetMapping("/nova")
-	public String nova() {
-		return "venda/CadastroVenda";
+	public ModelAndView nova() {
+		ModelAndView mv = new ModelAndView("venda/CadastroVenda");
+		mv.addObject("uuid", UUID.randomUUID().toString());
+		return mv;
 	}
 
 	/**
@@ -34,20 +38,21 @@ public class VendasController {
 	 * para o JS o html pronto. Esse html é a lista do carrinho de compras.
 	 */
 	@PostMapping("/item")
-	public ModelAndView adicionarItem(Long codigoCerveja) {
+	public ModelAndView adicionarItem(Long codigoCerveja, String uuid) {
 		Cerveja cerveja = cervejas.findOne(codigoCerveja);
-		tabelaItensVenda.adicionarItem(cerveja, 1);
+		tabelaItens.adicionarItem(uuid, cerveja, 1);
 
-		return mvTabelaItensVenda();
+		return mvTabelaItensVenda(uuid);
 	}
 
 	@PutMapping("/item/{codigoCerveja}")
-	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoCerveja") Cerveja cerveja, Integer quantidade) {
+	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoCerveja") Cerveja cerveja, Integer quantidade,
+			String uuid) {
 
 //		Cerveja cerveja = cervejas.findOne(codigoCerveja);
-		tabelaItensVenda.alterarQuantidadeItens(cerveja, quantidade);
+		tabelaItens.alterarQuantidadeItens(uuid, cerveja, quantidade);
 
-		return mvTabelaItensVenda();
+		return mvTabelaItensVenda(uuid);
 	}
 
 	/*
@@ -55,18 +60,22 @@ public class VendasController {
 	 * através da variável codigoCerveja. Assim, não preciso fazer o
 	 * cervejas.findOne(codigoCerveja);. Preciso configurar isso no WebConfig no
 	 * método domainClassConverter.
+	 *
+	 * No DELETE eu não consigo passar parâmetros no corpo da requisição. Como eu
+	 * preciso do uuid da tela, eu passo ela na url, diferentemente dos outros
+	 * métodos.
 	 */
-	@DeleteMapping("/item/{codigoCerveja}")
-	public ModelAndView excluirItem(@PathVariable("codigoCerveja") Cerveja cerveja) {
+	@DeleteMapping("/item/{uuid}/{codigoCerveja}")
+	public ModelAndView excluirItem(@PathVariable("codigoCerveja") Cerveja cerveja, @PathVariable String uuid) {
 //		Cerveja cerveja = cervejas.findOne(codigoCerveja);
-		tabelaItensVenda.excluirItem(cerveja);
+		tabelaItens.excluirItem(uuid, cerveja);
 
-		return mvTabelaItensVenda();
+		return mvTabelaItensVenda(uuid);
 	}
 
-	private ModelAndView mvTabelaItensVenda() {
+	private ModelAndView mvTabelaItensVenda(String uuid) {
 		ModelAndView mv = new ModelAndView("venda/TabelaItensVenda");
-		mv.addObject("itens", tabelaItensVenda.getItens());
+		mv.addObject("itens", tabelaItens.getItens(uuid));
 		return mv;
 	}
 

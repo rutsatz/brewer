@@ -6,24 +6,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
-
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.model.ItemVenda;
 
 /**
- * O escopo default dos beans do Spring é escopo da aplicação. Porém, para os
- * itens da venda, eu quero o escopo da sessão do usuário. Se eu deixar como
- * escopo de aplicação, vai existir somente um item dessa classe para todos os
- * usuários, e a lista de vendas vai ser para todo mundo. Com o escopo de
- * sessão, crio um objeto para cada usuário.
+ * Removido o public, pois ela somente pode ser acessada através da sessão do
+ * usuário.
  */
-@SessionScope
-@Component
-public class TabelaItensVenda {
+class TabelaItensVenda {
+
+	/*
+	 * Identifica para a sessão do usuário, qual tela está aberta, caso tenha mais
+	 * de uma aba aberta.
+	 */
+	private String uuid;
 
 	private List<ItemVenda> itens = new ArrayList<>();
+
+	/** Somente consigo criar se passar o id. */
+	public TabelaItensVenda(String uuid) {
+		this.uuid = uuid;
+	}
 
 	public BigDecimal getValorTotal() {
 		/* Itera todos os itens da venda. */
@@ -124,4 +127,34 @@ public class TabelaItensVenda {
 				 */
 				.findAny();
 	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TabelaItensVenda other = (TabelaItensVenda) obj;
+		if (uuid == null) {
+			if (other.uuid != null)
+				return false;
+		} else if (!uuid.equals(other.uuid))
+			return false;
+		return true;
+	}
+
 }
