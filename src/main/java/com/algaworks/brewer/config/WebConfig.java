@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.data.repository.support.DomainClassConverter;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.number.NumberStyleFormatter;
@@ -195,6 +196,19 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		bundle.setBasename("classpath:/messages");
 		bundle.setDefaultEncoding("UTF-8"); // https://www.utf8-chartable.de/
 		return bundle;
+	}
+
+	/**
+	 * Configura a integração das minhas classes de domínio (meu model), para
+	 * converter diretamente para as classes, deixando o JpaRepository buscar os
+	 * dados automaticamente do banco. Por exemplo: Ao invés de eu receber o código
+	 * da cerveja por parâmetro e fazer um cervejas.findOne(codigoCerveja);, eu digo
+	 * que estou recebendo o código de uma cerveja e ele já faz isso pra mim. Mas
+	 * pra isso funcionar, eu preciso configurar esse método.
+	 */
+	@Bean
+	public DomainClassConverter<FormattingConversionService> domainClassConverter() {
+		return new DomainClassConverter<FormattingConversionService>(mvcConversionService());
 	}
 
 }
