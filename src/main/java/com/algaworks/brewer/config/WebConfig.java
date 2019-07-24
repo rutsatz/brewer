@@ -150,7 +150,13 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		// API de datas do Java 8
 		/* Registra o conversor para campos do tipo LocalDate. */
 		DateTimeFormatterRegistrar dateTimeFormatter = new DateTimeFormatterRegistrar();
+		/*
+		 * Registra os conversores de Data e hora, para que possa recebê-los formatados
+		 * lá da minha view. Pois o input vai mandar a String no formato com a mascara
+		 * que está definida pelo maskmoney.
+		 */
 		dateTimeFormatter.setDateFormatter(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		dateTimeFormatter.setTimeFormatter(DateTimeFormatter.ofPattern("HH:mm"));
 		/* Registro o formatador de datas no meu conversionService. */
 		dateTimeFormatter.registerFormatters(conversionService);
 

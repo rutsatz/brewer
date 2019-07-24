@@ -6,7 +6,7 @@ CREATE TABLE venda (
     valor_total DECIMAL(10,2) NOT NULL,
     status VARCHAR(30) NOT NULL,
     observacao VARCHAR(200),
-    data_entrega TIMESTAMP,
+    data_hora_entrega TIMESTAMP,
     codigo_cliente BIGINT NOT NULL,
     codigo_usuario BIGINT NOT NULL,
     FOREIGN KEY (codigo_cliente) REFERENCES cliente(codigo),

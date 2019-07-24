@@ -1,9 +1,12 @@
 package com.algaworks.brewer.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,6 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "venda")
@@ -23,37 +27,60 @@ public class Venda {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
-	
+
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
-	
+
 	@Column(name = "valor_frete")
 	private BigDecimal valorFrete;
-	
+
 	@Column(name = "valor_desconto")
 	private BigDecimal valorDesconto;
-	
+
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal;
-	
+
 	private String observacao;
-	
-	@Column(name = "data_entrega")
-	private LocalDateTime dataEntrega;
-	
+
+	@Column(name = "data_hora_entrega")
+	private LocalDateTime dataHoraEntrega;
+
 	@ManyToOne
 	@JoinColumn(name = "codigo_cliente")
 	private Cliente cliente;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "codigo_usuario")
 	private Usuario usuario;
-	
-	@Enumerated(EnumType.STRING)
-	private StatusVenda status;
 
-	@OneToMany(mappedBy = "venda")
+	/* Quando uma venda é criada, o status inicial dela é orçamento. */
+	@Enumerated(EnumType.STRING)
+	private StatusVenda status = StatusVenda.ORCAMENTO;
+
+	@OneToMany(mappedBy = "venda", cascade = CascadeType.ALL)
 	private List<ItemVenda> itens;
+
+	/*
+	 * Precisa desse campo para fazer a ligação com a tela, para recuperar a venda
+	 * da sessão corretamente.
+	 */
+	@Transient
+	private String uuid;
+
+	/*
+	 * Esses campos estão separados lá na tela, por isso adiciono aqui pra poder
+	 * fazer o vínculo.
+	 */
+	@Transient
+	private LocalDate dataEntrega;
+
+	/*
+	 * Pra receber o horário lá da tela no formato 10:15, por exemplo, eu preciso
+	 * configurar esse formato lá no WebConfig, igual fizemos com a data. Eu preciso
+	 * adicionar no dateTimeFormatter.
+	 */
+	@Transient
+	private LocalTime horarioEntrega;
 
 	public Long getCodigo() {
 		return codigo;
@@ -103,14 +130,6 @@ public class Venda {
 		this.observacao = observacao;
 	}
 
-	public LocalDateTime getDataEntrega() {
-		return dataEntrega;
-	}
-
-	public void setDataEntrega(LocalDateTime dataEntrega) {
-		this.dataEntrega = dataEntrega;
-	}
-
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -141,6 +160,52 @@ public class Venda {
 
 	public void setItens(List<ItemVenda> itens) {
 		this.itens = itens;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public LocalDateTime getDataHoraEntrega() {
+		return dataHoraEntrega;
+	}
+
+	public void setDataHoraEntrega(LocalDateTime dataHoraEntrega) {
+		this.dataHoraEntrega = dataHoraEntrega;
+	}
+
+	public LocalDate getDataEntrega() {
+		return dataEntrega;
+	}
+
+	public void setDataEntrega(LocalDate dataEntrega) {
+		this.dataEntrega = dataEntrega;
+	}
+
+	public LocalTime getHorarioEntrega() {
+		return horarioEntrega;
+	}
+
+	public void setHorarioEntrega(LocalTime horarioEntrega) {
+		this.horarioEntrega = horarioEntrega;
+	}
+
+	public boolean isNova() {
+		return codigo == null;
+	}
+
+	/*
+	 * Usa esse método ao invés do setItens, pois cada item tem o id de uma venda, e
+	 * preciso setar esse id.
+	 */
+	public void adicionarItens(List<ItemVenda> itens) {
+		this.itens = itens;
+		/* Seta a venda para cada item. */
+		this.itens.forEach(i -> i.setVenda(this));
 	}
 
 	@Override
