@@ -73,10 +73,14 @@ public class MenuAttributeTagProcessor extends AbstractAttributeTagProcessor {
 		String uri = request.getRequestURI();
 
 		/*
-		 * Usa o startsWith pois posso ter suburls, como /estilos/novo. O menun tbm
+		 * Usa o startsWith pois posso ter suburls, como /estilos/novo. O menu tbm
 		 * precisa ficar ativo nesses casos.
+		 *
+		 * Porém, como tem casos em que quero a pesquisa e o cadastro no mesmo menu e
+		 * casos que quero em menus separados, mudei para o matches, assim, eu passo um
+		 * expressão regular lá na tag.
 		 */
-		if (uri.startsWith(menu)) {
+		if (uri.matches(menu)) {
 			/* Pega as classes que já existem dentro do atributo class do elemento. */
 			String classesExistentes = tag.getAttributeValue("class");
 			/* Adiciona no atributo class as classes existentes mais a class has-error */

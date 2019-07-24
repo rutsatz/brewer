@@ -41,10 +41,14 @@
 					</a>
 
 					<ul class="aw-menu__list  aw-menu__list--sublist">
-						<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estilos}">
+					<!-- Adiciona o .* no /estilos.* pois lá na tag processor do :menu, colocamos
+					o matches. Então ele vai dar o matches da uri com essa String. Assim, caso
+					queira deixar o novo e a pesquisa no mesmo menu, faço assim, que dá matches
+					nos dois. E caso, queira deixar em menus separados, é só colocar a String normal. -->
+						<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/estilos.*}">
 							<a th:href="@{/estilos}">Estilos</a>
 						</li>
-						<li class="aw-menu__item  aw-menu__item--link" brewer:menu=@{/cervejas}>
+						<li class="aw-menu__item  aw-menu__item--link" brewer:menu=@{/cervejas.*}>
 							<a th:href="@{/cervejas}">Cervejas</a>
 						</li>
 					</ul>
@@ -57,13 +61,13 @@
         				</a>
 
         				<ul class="aw-menu__list  aw-menu__list--sublist">
-          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/cidades}">
+          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/cidades.*}">
           						<a th:href="@{/cidades}">Cidades</a>
           					</li>
-          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/clientes}">
+          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/clientes.*}">
           						<a th:href="@{/clientes}">Clientes</a>
           					</li>
-          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/usuarios}">
+          					<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/usuarios.*}">
           						<a th:href="@{/usuarios}">Usuários</a>
           					</li>
         				</ul>
