@@ -2,8 +2,6 @@ package com.algaworks.brewer.controller;
 
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -43,64 +41,95 @@ public class VendasController {
 
 	@Autowired
 	private VendaValidator vendaValidator;
-	
-	/** Método para inicializar os nossos validadores customizados.
-	 * Preciso colocar a anottation @InitBinder para chamar esse método na inicialização do Controller,
-	 * para adicionar o nosso validador para esse Controller. Assim, quando ele encontrar alguma
-	 * Venda anotada com @Valid, ele vai executar as validações do nosso validador customizado. */
+
+	/**
+	 * Método para inicializar os nossos validadores customizados. Preciso colocar a
+	 * anottation @InitBinder para chamar esse método na inicialização do
+	 * Controller, para adicionar o nosso validador para esse Controller. Assim,
+	 * quando ele encontrar alguma Venda anotada com @Valid, ele vai executar as
+	 * validações do nosso validador customizado.
+	 */
 	@InitBinder
 	public void inicializarValidador(WebDataBinder binder) {
-	    binder.setValidator(vendaValidator);
+		binder.setValidator(vendaValidator);
 	}
-	
+
 	@GetMapping("/nova")
 	public ModelAndView nova(Venda venda) {
 		ModelAndView mv = new ModelAndView("venda/CadastroVenda");
-		
+
 		/* Somente seta o UUID a primeira vez. */
-		if(StringUtils.isEmpty(venda.getUuid())) {
+		if (StringUtils.isEmpty(venda.getUuid())) {
 //	        mv.addObject("uuid", UUID.randomUUID().toString());
-		    venda.setUuid(UUID.randomUUID().toString());
+			venda.setUuid(UUID.randomUUID().toString());
 		}
 
 		mv.addObject("itens", venda.getItens());
-		/* Adiciona para poder recuperar no javascript e poder fazer os binds novamente e iniciar as variáveis
-		 * com os valores corretos. */
+		/*
+		 * Adiciona para poder recuperar no javascript e poder fazer os binds novamente
+		 * e iniciar as variáveis com os valores corretos.
+		 */
 		mv.addObject("valorFrete", venda.getValorFrete());
 		mv.addObject("valorDesconto", venda.getValorDesconto());
 		mv.addObject("valorTotalItens", tabelaItens.getValorTotal(venda.getUuid()));
 		return mv;
 	}
 
-	@PostMapping("/nova")
+	/**
+	 * Adiciono o params, que indica que se tiver esse parâmetro na url, ele irá
+	 * chamar esse método.
+	 */
+	@PostMapping(value = "/nova", params = "salvar")
 	public ModelAndView salvar(Venda venda, BindingResult result, RedirectAttributes attributes,
 			@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 
-	    /* Seta os itens dessa venda. (Por isso precisa do uuid) */
-        venda.adicionarItens(tabelaItens.getItens(venda.getUuid()));
-	    
-        /* Calcula o valor total para setar na venda e mandar novamente para a tela. Se não fizer isso,
-         * ele somente vai colocar o valor total quando eu adicionar ou excluir um item, pois ai o javascript
-         * faz uma chamada rest que o server processa, através no método mvTabelaItensVenda, e ai faz
-         * o append do html processador pelo thymeleaf. */
-        venda.calcularValorTotal();
-        
-	    /* Como eu preciso terminar de montar o objeto venda, para ai validar, eu posso remover o @Valid
-	     * lá do parâmetro e chamar o método validate do nosso validador customizado. E aí, eu passo a
-	     * venda para ele, já com os itens setados. Ou seja, é nesse momento que ele vai realizar a
-	     * validação, e não mais quando chegar no controller.*/
-	    vendaValidator.validate(venda, result);
+		validarVenda(venda, result);
 
-	    
-	    if(result.hasErrors()) {
-	        return nova(venda);
-	    }
-	    
+		if (result.hasErrors()) {
+			return nova(venda);
+		}
+
 		/* Seta o usuário que está logado como o usuário da venda. */
 		venda.setUsuario(usuarioSistema.getUsuario());
 
 		cadastroVendaService.salvar(venda);
 		attributes.addFlashAttribute("mensagem", "Venda salva com sucesso");
+		return new ModelAndView("redirect:/vendas/nova");
+	}
+
+	@PostMapping(value = "/nova", params = "emitir")
+	public ModelAndView emitir(Venda venda, BindingResult result, RedirectAttributes attributes,
+			@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+
+		validarVenda(venda, result);
+
+		if (result.hasErrors()) {
+			return nova(venda);
+		}
+
+		/* Seta o usuário que está logado como o usuário da venda. */
+		venda.setUsuario(usuarioSistema.getUsuario());
+
+		cadastroVendaService.emitir(venda);
+		attributes.addFlashAttribute("mensagem", "Venda emitida com sucesso");
+		return new ModelAndView("redirect:/vendas/nova");
+	}
+
+	@PostMapping(value = "/nova", params = "enviarEmail")
+	public ModelAndView enviarEmail(Venda venda, BindingResult result, RedirectAttributes attributes,
+			@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+
+		validarVenda(venda, result);
+
+		if (result.hasErrors()) {
+			return nova(venda);
+		}
+
+		/* Seta o usuário que está logado como o usuário da venda. */
+		venda.setUsuario(usuarioSistema.getUsuario());
+
+		cadastroVendaService.salvar(venda);
+		attributes.addFlashAttribute("mensagem", "Venda salva e e-mail enviado");
 		return new ModelAndView("redirect:/vendas/nova");
 	}
 
@@ -149,6 +178,29 @@ public class VendasController {
 		mv.addObject("itens", tabelaItens.getItens(uuid));
 		mv.addObject("valorTotal", tabelaItens.getValorTotal(uuid));
 		return mv;
+	}
+
+	private void validarVenda(Venda venda, BindingResult result) {
+		/* Seta os itens dessa venda. (Por isso precisa do uuid) */
+		venda.adicionarItens(tabelaItens.getItens(venda.getUuid()));
+
+		/*
+		 * Calcula o valor total para setar na venda e mandar novamente para a tela. Se
+		 * não fizer isso, ele somente vai colocar o valor total quando eu adicionar ou
+		 * excluir um item, pois ai o javascript faz uma chamada rest que o server
+		 * processa, através no método mvTabelaItensVenda, e ai faz o append do html
+		 * processador pelo thymeleaf.
+		 */
+		venda.calcularValorTotal();
+
+		/*
+		 * Como eu preciso terminar de montar o objeto venda, para ai validar, eu posso
+		 * remover o @Valid lá do parâmetro e chamar o método validate do nosso
+		 * validador customizado. E aí, eu passo a venda para ele, já com os itens
+		 * setados. Ou seja, é nesse momento que ele vai realizar a validação, e não
+		 * mais quando chegar no controller.
+		 */
+		vendaValidator.validate(venda, result);
 	}
 
 }
