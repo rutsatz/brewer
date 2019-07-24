@@ -20,8 +20,17 @@ Brewer.TabelaItens = (function() {
 		 * do autocomplete.
 		 */
 		this.autocomplete.on('item-selecionado', onItemSelecionado.bind(this));
+		
+		bindQuantidade.call(this);
+		bindTabelaItem.call(this);
 	}
 
+	/* Coloca no prototype para deixar acessível de fora. Ai, como o thymeleaf coloca esse item
+	 * que vem lá do server, aí assim consigo acessar lá do venda.js. */
+	TabelaItens.prototype.valorTotal = function() {
+		return this.tabelaCervejasContainer.data('valor');
+	}
+	
 	/** Recebo do evento capturado o nome do evento e o item. */
 	function onItemSelecionado(evento, item) {
 		var resposta = $.ajax({
@@ -48,24 +57,12 @@ Brewer.TabelaItens = (function() {
 		/** Seta o html da lista renderizada no container de cervejas. */
 		this.tabelaCervejasContainer.html(html);
 
-		/**
-		 * Adiciona aqui, após receber o html dos itens do servidor, pois é
-		 * somente depois de receber esse html que eu tenho acesso ao input da
-		 * quantidade de itens.
-		 */
-		var quantidadeItemInput = $('.js-tabela-cerveja-quantidade-item');
-		quantidadeItemInput.on('change', onQuantidadeItemAlterado.bind(this));
-		/* Não deixa informar letras na quantidade. */
-		quantidadeItemInput.maskMoney({ precision: 0, thousands: '' });
-		/**
-		 * Pego a div container de cada item e adiciono um evento de double
-		 * click para mostrar a opção de excluir o item.
-		 */
-		var tabelaItem = $('.js-tabela-item');
-		tabelaItem.on('dblclick', onDoubleClick);
-
-		/** Botão de confirmar a exclusão do item. */
-		$('.js-exclusao-item-btn').on('click', onExclusaoItemClick.bind(this));
+		/** As inicializações foram movidas para esse método, pois quando a página for carregada,
+		 * ele também precisa faze-las, pois pode ser que eu tenha enviado para o server e tenha
+		 * dado algum erro de validação. Então preciso fazer o bind novamente. */
+		bindQuantidade.call(this);
+		
+		var tabelaItem = bindTabelaItem.call(this);
 		
 		/* Ao atualizar os itens, notifica a venda com o novo valor total. Recupera o valor total através de um data,
 		 * que foi atribuido lá pelo servidor. */
@@ -140,6 +137,34 @@ Brewer.TabelaItens = (function() {
 		resposta.done(onItemAtualizadoNoServidor.bind(this));
 	}
 
+	/* Preciso fazer o bind toda vez que o servidor for atualizado via javascript ou quando a tela
+	 * for carregada.  */
+	function bindQuantidade() {
+		/**
+		 * Adiciona aqui, após receber o html dos itens do servidor, pois é
+		 * somente depois de receber esse html que eu tenho acesso ao input da
+		 * quantidade de itens.
+		 */
+		var quantidadeItemInput = $('.js-tabela-cerveja-quantidade-item');
+		quantidadeItemInput.on('change', onQuantidadeItemAlterado.bind(this));
+		/* Não deixa informar letras na quantidade. */
+		quantidadeItemInput.maskMoney({ precision: 0, thousands: '' });
+	}
+	
+	function bindTabelaItem() {
+		/**
+		 * Pego a div container de cada item e adiciono um evento de double
+		 * click para mostrar a opção de excluir o item.
+		 */
+		var tabelaItem = $('.js-tabela-item');
+		tabelaItem.on('dblclick', onDoubleClick);
+
+		/** Botão de confirmar a exclusão do item. */
+		$('.js-exclusao-item-btn').on('click', onExclusaoItemClick.bind(this));
+		
+		return tabelaItem;
+	}
+	
 	return TabelaItens;
 
 }());

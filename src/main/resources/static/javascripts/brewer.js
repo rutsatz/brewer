@@ -125,7 +125,8 @@ Brewer.Security = (function() {
 
 /* Colocado aqui para chamar somente uma vez, e não precisar ficar repetindo em cada método separado. */
 /* Seleciona o idioma do Brasil. */
-numeral.locale('pt-br');
+numeral.language('pt-br');
+//numeral.locale('pt-br');
 
 /* Cria uma função estática. */
 Brewer.formatarMoeda = function(valor) {
@@ -138,8 +139,8 @@ Brewer.formatarMoeda = function(valor) {
 Brewer.recuperarValor = function(valorFormatado) {
 	/* Remove a formatação (Casas decimais, vírgulas, etc). */
 	/* Função unformat foi removido. */
-//	return numeral.unformat(valorFormatado);
-	return numeral(valorFormatado).value();
+	return numeral().unformat(valorFormatado);
+//	return numeral(valorFormatado).value();
 }
 
 /* Função ready do jQuery. */
