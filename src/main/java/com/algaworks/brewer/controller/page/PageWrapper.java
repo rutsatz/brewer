@@ -25,7 +25,13 @@ public class PageWrapper<T> {
 		 */
 		String httpUrl = httpServletRequest.getRequestURL()
 				.append(httpServletRequest.getQueryString() != null ? "?" + httpServletRequest.getQueryString() : "")
-				.toString().replaceAll("\\+", "%20");
+				.toString().replaceAll("\\+", "%20")
+				/*
+				 * Parâmetro adicionado pelo javascript para exibir mensagens de erro. Se
+				 * estiver ordenando, preciso remover ele, senão vai mostrar a mensagem
+				 * novamente, mesmo sem ter excluído nada.
+				 */
+				.replaceAll("excluido", "");
 		/* Agora construo a partir da nova url com o replace */
 		this.uriBuilder = ServletUriComponentsBuilder.fromHttpUrl(httpUrl);
 	}
