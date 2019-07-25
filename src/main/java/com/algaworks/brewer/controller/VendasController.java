@@ -151,8 +151,11 @@ public class VendasController {
 		/* Chamada assíncrona. */
 		mailer.enviar(venda);
 
-		cadastroVendaService.salvar(venda);
-		attributes.addFlashAttribute("mensagem", "Venda salva e e-mail enviado");
+		/* Já pega o id da venda, para mandar no email. */
+		venda = cadastroVendaService.salvar(venda);
+
+		attributes.addFlashAttribute("mensagem",
+				String.format("Venda nº %d salva com sucesso e e-mail enviado", venda.getCodigo()));
 		return new ModelAndView("redirect:/vendas/nova");
 	}
 
