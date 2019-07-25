@@ -24,7 +24,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 
 				<div class="col-xs-2">
 					<div class="aw-page-header-controls">
-						<a class="btn btn-default" th:href="@{/cervejas/novo}">
+						<a class="btn btn-default" th:href="@{/cervejas/nova}">
 							<i class="glyphicon glyphicon-plus-sign"></i> <span class="hidden-xs hidden-sm">Nova Cerveja</span>
 						</a>
 					</div>
@@ -131,7 +131,8 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 						<td th:text="${cerveja.origem.descricao}">Internacional</td>
 						<td class="text-right" th:text="|R$ ${cerveja.valor}|">R$ 8.00</td>
 						<td class="text-center">
-							<a class="btn btn-link  btn-xs js-tooltip" title="Editar">
+							<a class="btn btn-link  btn-xs js-tooltip" title="Editar"
+									th:href="@{/cervejas/{codigo}(codigo=${cerveja.codigo})}">
 								<i class="glyphicon glyphicon-pencil"></i>
 							</a>
 							<a class="btn btn-link  btn-xs js-tooltip  js-exclusao-btn" title="Excluir" href="#" 

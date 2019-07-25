@@ -6,8 +6,9 @@ Brewer.UploadFoto = (function() {
 	/* Construtor. */
 	function UploadFoto() {
 
-		this.inputNomeFoto = $('input[name=foto]'); 
-        this.inputContentType = $('input[name=contentType]'); 
+		this.inputNomeFoto = $('input[name=foto]');
+        this.inputContentType = $('input[name=contentType]');
+        this.novaFoto = $('input[name=novaFoto]'); 
 
         /* Processador de template Handlebarsjs */
         this.htmlFotoCervejaTemplate = $("#foto-cerveja").html();
@@ -17,6 +18,7 @@ Brewer.UploadFoto = (function() {
         this.containerFotoCerveja = $('.js-container-foto-cerveja');
 
         this.uploadDrop = $('.js-upload');
+        
 	}
 
 	/* Inicia, podendo receber dependências externas. */
@@ -44,31 +46,45 @@ Brewer.UploadFoto = (function() {
 	    	   feito o upload com sucesso. Porém, temos que executar a função no contexto do objeto,
 	    	   por isso usamos o método call e passamos o this, indicando que queremos que o método
 	    	   seja executado nesse contexto. */
-	    	onUploadCompleto.call(this, { response: { nome: this.inputNomeFoto.val(), contentType: this.inputContentType.val() } });
+	    	renderizarFoto.call(this, { response: { nome: this.inputNomeFoto.val(), contentType: this.inputContentType.val() } });
 	    }
 	}
 
 	function onUploadCompleto(resposta) {
+		/** Aqui é uma foto nova. */
+		this.novaFoto.val('true');
+		renderizarFoto.call(this, resposta);
+	}
+
+	function renderizarFoto(resposta) {
 		 this.inputNomeFoto.val(resposta.response.nome);
          this.inputContentType.val(resposta.response.contentType);
 
          /* Esconde o drag and drop */
          this.uploadDrop.addClass('hidden');
 
+         /** Tratamento para foto nova ou edição. */
+         var foto = '';
+         if (this.novaFoto.val() == 'true') {
+        	 foto = 'temp/';
+         }
+         foto += resposta.response.nome;
+         
          /* Troca as variáveis dentro do template, conforme o objeto passado por parâmtro. */
-         var htmlFotoCerveja = this.template({nomeFoto: resposta.response.nome});
+         var htmlFotoCerveja = this.template({foto: foto});
          this.containerFotoCerveja.append(htmlFotoCerveja);
 
          /* Botão para remover a foto. */
          $('.js-remove-foto').on('click', onRemoverFoto.bind(this));
 	}
-
+	
 	function onRemoverFoto() {
 		/* Exclui o template da foto. */
     	$('.js-foto-cerveja').remove();	            	
     	this.uploadDrop.removeClass('hidden');
     	this.inputNomeFoto.val('');
     	this.inputContentType.val('');
+    	this.novaFoto.val('false');
 	}
 
 	/* Recebe o objeto xhr, que é o que eu tenho que adicionar o token, pois esse método é chamado no

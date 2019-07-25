@@ -46,8 +46,8 @@ public class CervejasController {
 	@Autowired
 	private Cervejas cervejas;
 
-	@RequestMapping("/novo")
-	public ModelAndView novo(Cerveja cerveja) {
+	@RequestMapping("/nova")
+	public ModelAndView nova(Cerveja cerveja) {
 		ModelAndView mv = new ModelAndView("cerveja/CadastroCerveja");
 		mv.addObject("sabores", Sabor.values());
 		mv.addObject("estilos", estilos.findAll());
@@ -55,17 +55,23 @@ public class CervejasController {
 		return mv;
 	}
 
-	@RequestMapping(value = "/novo", method = RequestMethod.POST)
-	public ModelAndView cadastrar(@Valid Cerveja cerveja, BindingResult result, Model model,
+	/*
+	 * Esse método está mapeando a inclusão e edição. Então, para uma nova, ele vai
+	 * usar o /nova. Mas agora se for uma edição, vai ser um post para /<id>. Então
+	 * eu também mapeio todos os dígitos inteiros positivos. Dessa forma, esse
+	 * método atende a essas duas urls.
+	 */
+	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
+	public ModelAndView salvar(@Valid Cerveja cerveja, BindingResult result, Model model,
 			RedirectAttributes attributes) {
 
 		if (result.hasErrors()) {
-			return novo(cerveja);
+			return nova(cerveja);
 		}
 
 		cadastroCervejaService.salvar(cerveja);
 		attributes.addFlashAttribute("mensagem", "Cerveja salva com sucesso!");
-		return new ModelAndView("redirect:/cervejas/novo");
+		return new ModelAndView("redirect:/cervejas/nova");
 	}
 
 	/*
@@ -121,6 +127,19 @@ public class CervejasController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable("codigo") Cerveja cerveja) {
+		ModelAndView mv = nova(cerveja);
+		/*
+		 * Quando estamos recebendo por parâmetro no Controller, o Spring que injeta o
+		 * objeto pra gente. Nessa caso, estamos usando o método novo, que já popula
+		 * algumas coisas pra gente, só que aí preciso adicionar a cerveja manualmente.
+		 */
+		mv.addObject(cerveja);
+
+		return mv;
 	}
 
 }

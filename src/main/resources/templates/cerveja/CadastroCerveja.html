@@ -21,7 +21,8 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-sm-10">
-						<h1>Cadastro de cerveja</h1>
+						<h1 th:if="${cerveja.nova}">Cadastro de cerveja</h1>
+						<h1 th:unless="${cerveja.nova}" th:text="|Edição da ${cerveja.nome}|">Edição de cerveja</h1>
 					</div>
 
 					<div class="col-sm-2">
@@ -47,9 +48,13 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 			<!-- Quando estou com o CSRF habilitado, sempre preciso usar o th:action, pois ele adiciona um input hidden que
 			contém o token do CSRF que foi gerado pelo servidor. -->
 			<form method="post" th:object="${cerveja}" class="form-vertical  js-form-loading"
-				th:action="@{/cervejas/novo}">
+				th:action="${cerveja.nova} ? @{/cervejas/nova} : @{/cervejas/{codigo}(codigo=${cerveja.codigo})}">
 
 				<brewer:message />
+
+				<!-- Com esse código aqui, a JPA sabe se precisa fazer insert ou update.
+				Se tiver código, ela fara um update. -->
+				<input type="hidden" th:field="*{codigo}"/>
 
 				<div class="row">
 				    <!-- Trocamos o th:classappend do thymeleaf pelo nosso próprio
@@ -146,6 +151,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 
 						<input type="hidden" th:field="*{foto}">
 						<input type="hidden" th:field="*{contentType}">
+						<input type="hidden" th:field="*{novaFoto}">
 
 						<label class="control-label">Foto</label>
 

@@ -19,7 +19,7 @@ public class CervejaListener {
 	 * indica que é a variável evento que é recebida por parâmetro. Eles devem ter o
 	 * mesmo nome.
 	 */
-	@EventListener(condition = "#evento.temFoto()")
+	@EventListener(condition = "#evento.temFoto() and #evento.novaFoto")
 	public void cervejaSalva(CervejaSalvaEvent evento) {
 		fotoStorage.salvar(evento.getCerveja().getFoto());
 	}
