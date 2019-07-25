@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.algaworks.brewer.controller.page.PageWrapper;
 import com.algaworks.brewer.controller.validator.VendaValidator;
+import com.algaworks.brewer.mail.Mailer;
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.model.StatusVenda;
 import com.algaworks.brewer.model.TipoPessoa;
@@ -53,7 +54,10 @@ public class VendasController {
 
 	@Autowired
 	private Vendas vendas;
-	
+
+	@Autowired
+	private Mailer mailer;
+
 	/**
 	 * Método para inicializar os nossos validadores customizados. Preciso colocar a
 	 * anottation @InitBinder para chamar esse método na inicialização do
@@ -62,9 +66,9 @@ public class VendasController {
 	 * validações do nosso validador customizado.
 	 *
 	 * Como esse validador é para a Venda, e eu tenho o método de pesquisar, ele vai
-	 * procurar um validador para o VendaFilter, mas não vai achar, pois ele vai analisando
-	 * todos os métodos do controller. Então digo que ele deve aplicar a validação somente
-	 * para os parametros "venda".
+	 * procurar um validador para o VendaFilter, mas não vai achar, pois ele vai
+	 * analisando todos os métodos do controller. Então digo que ele deve aplicar a
+	 * validação somente para os parametros "venda".
 	 */
 	@InitBinder("venda")
 	public void inicializarValidador(WebDataBinder binder) {
@@ -137,13 +141,15 @@ public class VendasController {
 			@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 
 		validarVenda(venda, result);
-
 		if (result.hasErrors()) {
 			return nova(venda);
 		}
 
 		/* Seta o usuário que está logado como o usuário da venda. */
 		venda.setUsuario(usuarioSistema.getUsuario());
+
+		/* Chamada assíncrona. */
+		mailer.enviar();
 
 		cadastroVendaService.salvar(venda);
 		attributes.addFlashAttribute("mensagem", "Venda salva e e-mail enviado");
@@ -189,16 +195,15 @@ public class VendasController {
 
 		return mvTabelaItensVenda(uuid);
 	}
-	
+
 	@GetMapping
-	public ModelAndView pesquisar(VendaFilter vendaFilter,
-			@PageableDefault(size = 3) Pageable pageable, HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(VendaFilter vendaFilter, @PageableDefault(size = 3) Pageable pageable,
+			HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("/venda/PesquisaVendas");
 		mv.addObject("todosStatus", StatusVenda.values());
 		mv.addObject("tiposPessoa", TipoPessoa.values());
-		
-		PageWrapper<Venda> paginaWrapper = new PageWrapper<>(vendas.filtrar(vendaFilter, pageable)
-				, httpServletRequest);
+
+		PageWrapper<Venda> paginaWrapper = new PageWrapper<>(vendas.filtrar(vendaFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
@@ -210,8 +215,6 @@ public class VendasController {
 		return mv;
 	}
 
-	
-	
 	private void validarVenda(Venda venda, BindingResult result) {
 		/* Seta os itens dessa venda. (Por isso precisa do uuid) */
 		venda.adicionarItens(tabelaItens.getItens(venda.getUuid()));

@@ -22,6 +22,7 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.number.NumberStyleFormatter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -75,6 +76,11 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
  * servidor, por exemplo. Preciso configurar o CacheManager.
  */
 @EnableCaching
+/*
+ * Habilita o Spring a fazer chamada assíncronas dos métodos anotados
+ * com @Async.
+ */
+@EnableAsync
 public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
 
 	private ApplicationContext applicationContext;
