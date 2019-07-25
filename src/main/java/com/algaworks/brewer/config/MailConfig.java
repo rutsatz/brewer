@@ -35,7 +35,7 @@ import com.algaworks.brewer.mail.Mailer;
  * erro, devo passar o parâmetro ignoreResourceNotFound. Consequentemente, não
  * usar os parâmetros do arquivo anterior.
  */
-@PropertySource(value = { "file://${HOME}/.brewer-mail.properties" }, ignoreResourceNotFound = true)
+@PropertySource(value = { "file://${HOME}/.brewer-mail22222.properties" }, ignoreResourceNotFound = true)
 public class MailConfig {
 
 	@Autowired
