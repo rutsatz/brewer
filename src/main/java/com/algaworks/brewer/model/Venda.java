@@ -210,37 +210,41 @@ public class Venda {
 		this.itens.forEach(i -> i.setVenda(this));
 	}
 
+	public BigDecimal getValorTotalItens() {
+		/*
+		 * Percorre a lista de itens, somando o valor total de cada item. Não preciso
+		 * validar se tem os itens e talz, pois quando chegar aqui, já vai estar válido,
+		 * pois eu valido lá no controller.
+		 */
+//        BigDecimal valorTotalItens = getItens().stream().map(ItemVenda::getValorTotal).reduce(BigDecimal::add).get();
+
+		/*
+		 * Como o cálculo do total foi tirado do service e movido para cá, eu removo o
+		 * get() e coloco um orElse, pois como pode ser uma venda nova ou o usuário não
+		 * informou os itens, eu posso não ter os itens. Ai nesse caso, eu passo o
+		 * orElse com Zero.
+		 */
+		return getItens().stream().map(ItemVenda::getValorTotal).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+	}
+
 	/* Calcula o valor total da venda. */
 	public void calcularValorTotal() {
-
-        /*
-         * Percorre a lista de itens, somando o valor total de cada item. Não preciso
-         * validar se tem os itens e talz, pois quando chegar aqui, já vai estar válido,
-         * pois eu valido lá no controller.
-         */
-//        BigDecimal valorTotalItens = getItens().stream().map(ItemVenda::getValorTotal).reduce(BigDecimal::add).get();
-	    
-	    /* Como o cálculo do total foi tirado do service e movido para cá, eu removo o get() e coloco um orElse, pois como
-	     * pode ser uma venda nova ou o usuário não informou os itens, eu posso não ter os itens. Ai nesse caso, eu passo o orElse
-	     * com Zero. */
-	    BigDecimal valorTotalItens = getItens().stream().map(ItemVenda::getValorTotal).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-	    
-	    this.valorTotal = calcularValorTotal(valorTotalItens, getValorFrete(), getValorDesconto());
+		this.valorTotal = calcularValorTotal(getValorTotalItens(), getValorFrete(), getValorDesconto());
 	}
-	
-	   private BigDecimal calcularValorTotal(BigDecimal valorTotalItens, BigDecimal valorFrete, BigDecimal valorDesconto) {
-	        /* Calculo o total da venda. (Total itens + frete - desconto) */
-	        BigDecimal valorTotal = valorTotalItens
-	                /*
-	                 * Nesse caso, o valor do frete e do desconto não são obrigatórios, então eu
-	                 * preciso validar. Então eu posso usar o Optional. Estou dizendo: Se não for
-	                 * null, usa o valor, senão, usa 0.
-	                 */
-	                .add(Optional.ofNullable(valorFrete).orElse(BigDecimal.ZERO))
-	                .subtract(Optional.ofNullable(valorDesconto).orElse(BigDecimal.ZERO));
-	        return valorTotal;
-	    }
-	
+
+	private BigDecimal calcularValorTotal(BigDecimal valorTotalItens, BigDecimal valorFrete, BigDecimal valorDesconto) {
+		/* Calculo o total da venda. (Total itens + frete - desconto) */
+		BigDecimal valorTotal = valorTotalItens
+				/*
+				 * Nesse caso, o valor do frete e do desconto não são obrigatórios, então eu
+				 * preciso validar. Então eu posso usar o Optional. Estou dizendo: Se não for
+				 * null, usa o valor, senão, usa 0.
+				 */
+				.add(Optional.ofNullable(valorFrete).orElse(BigDecimal.ZERO))
+				.subtract(Optional.ofNullable(valorDesconto).orElse(BigDecimal.ZERO));
+		return valorTotal;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

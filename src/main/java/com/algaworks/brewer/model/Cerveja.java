@@ -183,10 +183,6 @@ public class Cerveja implements Serializable {
 		return foto;
 	}
 
-	public String getFotoOuMock() {
-		return !StringUtils.isEmpty(foto) ? foto : "cerveja-mock.png";
-	}
-
 	public void setFoto(String foto) {
 		this.foto = foto;
 	}
@@ -197,6 +193,14 @@ public class Cerveja implements Serializable {
 
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
+	}
+
+	public String getFotoOuMock() {
+		return !StringUtils.isEmpty(foto) ? foto : "cerveja-mock.png";
+	}
+
+	public boolean temFoto() {
+		return !StringUtils.isEmpty(this.foto);
 	}
 
 	@Override
