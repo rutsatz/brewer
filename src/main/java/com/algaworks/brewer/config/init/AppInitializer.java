@@ -8,6 +8,7 @@ import org.springframework.web.filter.HttpPutFormContentFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import com.algaworks.brewer.config.JPAConfig;
+import com.algaworks.brewer.config.MailConfig;
 import com.algaworks.brewer.config.SecurityConfig;
 import com.algaworks.brewer.config.ServiceConfig;
 import com.algaworks.brewer.config.WebConfig;
@@ -21,7 +22,12 @@ public class AppInitializer extends AbstractAnnotationConfigDispatcherServletIni
 
 	@Override
 	protected Class<?>[] getServletConfigClasses() {
-		return new Class<?>[] { WebConfig.class };
+		/*
+		 * Adiciona o MailConfig aqui pois vamos usar o Thymeleaf para gerar templates
+		 * html que serão adicionados ao email que será enviado. Ai eu posso injetar o
+		 * thymeleaf lá na classe que vai fazer o envio de email.
+		 */
+		return new Class<?>[] { WebConfig.class, MailConfig.class };
 	}
 
 	@Override
@@ -42,10 +48,12 @@ public class AppInitializer extends AbstractAnnotationConfigDispatcherServletIni
 //		characterEncodingFilter.setEncoding("UTF-8");
 //		characterEncodingFilter.setForceEncoding(true);
 
-	    /* Preciso criar esse filter para permitir receber parâmetros através de requisições do tipo PUT. 
-	     * O SpringMVC bloquea os parâmetros PUT por default. */
-	    HttpPutFormContentFilter httpPutFormContentFilter = new HttpPutFormContentFilter();
-	    
+		/*
+		 * Preciso criar esse filter para permitir receber parâmetros através de
+		 * requisições do tipo PUT. O SpringMVC bloquea os parâmetros PUT por default.
+		 */
+		HttpPutFormContentFilter httpPutFormContentFilter = new HttpPutFormContentFilter();
+
 		return new Filter[] { httpPutFormContentFilter };
 	}
 
