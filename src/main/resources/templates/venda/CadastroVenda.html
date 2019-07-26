@@ -19,8 +19,11 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-10">
-					<h1 th:if="${venda.nova}">Cadastro de venda</h1>
-					<h1 th:unless="${venda.nova}">Edição da venda nº [[${venda.codigo}]]</h1>
+					<!-- Para internacionalizar as mensagens com o thymeleaf, eu uso o # e passo a chave, para
+					buscar o texto lá dos messages -->
+					<h1 th:if="${venda.nova}" th:text="#{venda.cadastro.titulo}">Cadastro de venda</h1>
+					<!-- Usa a mensagem lá da internacionalização -->
+					<h1 th:unless="${venda.nova}" th:text="#{venda.edicao.titulo(${venda.codigo})}">Edição da venda nº </h1>
 				</div>
 			</div>
 		</div>

@@ -37,6 +37,7 @@ import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import com.algaworks.brewer.config.format.BigDecimalFormatter;
 import com.algaworks.brewer.controller.CervejasController;
 import com.algaworks.brewer.controller.converter.CidadeConverter;
 import com.algaworks.brewer.controller.converter.EstadoConverter;
@@ -146,13 +147,23 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		/*
 		 * Sempre informo o pattern de conversão no padrão internacional. Mas quando ele
 		 * for converter, ele considera o idioma do usuário.
+		 *
+		 * Como ele utiliza o locale do usuário, enviado no header, vai dar problema, pois
+		 * a formatação dos números, eu quero manter no padrão brasileiro, indiferente do
+		 * idioma do usuário. Ai eu customizo criando meus próprios formatters.
 		 */
-		NumberStyleFormatter numberStyleFormatter = new NumberStyleFormatter("#,##0.00");
-		conversionService.addFormatterForFieldType(BigDecimal.class, numberStyleFormatter);
+//		NumberStyleFormatter numberStyleFormatter = new NumberStyleFormatter("#,##0.00");
+//		conversionService.addFormatterForFieldType(BigDecimal.class, numberStyleFormatter);
+//		NumberStyleFormatter integerFormatter = new NumberStyleFormatter("#,##0");
+//		conversionService.addFormatterForFieldType(Integer.class, integerFormatter);
 
-		NumberStyleFormatter integerFormatter = new NumberStyleFormatter("#,##0");
-		conversionService.addFormatterForFieldType(Integer.class, integerFormatter);
-
+		/* Crio meus próprios formatters para resolver os problemas acima. */
+		BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter("#,##0.00");
+		conversionService.addFormatterForFieldType(BigDecimal.class, bigDecimalFormatter);
+		/* E para o integer, eu posso usar o mesmo, somente mudo o pattern. */
+		BigDecimalFormatter integerFormatter = new BigDecimalFormatter("#,##0");
+        conversionService.addFormatterForFieldType(BigDecimal.class, integerFormatter);
+		
 		// API de datas do Java 8
 		/* Registra o conversor para campos do tipo LocalDate. */
 		DateTimeFormatterRegistrar dateTimeFormatter = new DateTimeFormatterRegistrar();
@@ -173,10 +184,10 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	 * Força o sistema a sempre usar o padrão do Brasil pras conversões,
 	 * independente do Accept-language que o browser do usuário enviar.
 	 */
-	@Bean
-	public LocaleResolver localeResolver() {
-		return new FixedLocaleResolver(new Locale("pt", "BR"));
-	}
+//	@Bean
+//	public LocaleResolver localeResolver() {
+//		return new FixedLocaleResolver(new Locale("pt", "BR"));
+//	}
 
 	/*
 	 * Configura o cache do servidor com o guava.
