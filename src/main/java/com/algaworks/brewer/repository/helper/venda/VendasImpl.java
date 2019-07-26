@@ -1,7 +1,11 @@
 package com.algaworks.brewer.repository.helper.venda;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.Year;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.algaworks.brewer.model.StatusVenda;
 import com.algaworks.brewer.model.TipoPessoa;
 import com.algaworks.brewer.model.Venda;
 import com.algaworks.brewer.repository.filter.VendaFilter;
@@ -58,6 +63,43 @@ public class VendasImpl implements VendasQueries {
 		return (Venda) criteria.uniqueResult();
 	}
 
+    @Transactional(readOnly = true)
+    @Override
+    public BigDecimal valorTotalNoAno() {
+        /* Usa o optional porque vai que retorna 0. */
+        Optional<BigDecimal> optional = Optional.ofNullable(
+                        manager.createQuery("select sum(valorTotal) from Venda where year(dataCriacao) = :ano and status = :status", BigDecimal.class)
+                                        .setParameter("ano", Year.now().getValue())
+                                        .setParameter("status", StatusVenda.EMITIDA)
+                                        .getSingleResult());
+        /* Se não encontrar nada, ai retorna 0. */
+        return optional.orElse(BigDecimal.ZERO);
+    }
+    
+    @Override
+    public BigDecimal valorTotalNoMes() {
+        /* Usa o optional porque vai que retorna 0. */
+        Optional<BigDecimal> optional = Optional.ofNullable(
+                        manager.createQuery("select sum(valorTotal) from Venda where month(dataCriacao) = :mes and status = :status", BigDecimal.class)
+                                        .setParameter("mes", MonthDay.now().getMonthValue())
+                                        .setParameter("status", StatusVenda.EMITIDA)
+                                        .getSingleResult());
+        /* Se não encontrar nada, ai retorna 0. */
+        return optional.orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public BigDecimal valorTicketMedioNoAno() {
+        /* Usa o optional porque vai que retorna 0. */
+        Optional<BigDecimal> optional = Optional.ofNullable(
+                        manager.createQuery("select sum(valorTotal)/count(*) from Venda where year(dataCriacao) = :ano and status = :status", BigDecimal.class)
+                                        .setParameter("ano", Year.now().getValue())
+                                        .setParameter("status", StatusVenda.EMITIDA)
+                                        .getSingleResult());
+        /* Se não encontrar nada, ai retorna 0. */
+        return optional.orElse(BigDecimal.ZERO);
+    }
+    
 	private Long total(VendaFilter filtro) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Venda.class);
 		adicionarFiltro(filtro, criteria);
