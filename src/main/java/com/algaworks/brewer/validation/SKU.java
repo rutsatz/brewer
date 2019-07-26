@@ -20,8 +20,9 @@ import javax.validation.constraints.Pattern;
 @Pattern(regexp = "([a-zA-z]{2}\\d{4})?")
 public @interface SKU {
 
+    /* Coloco a mensagem entre {}, ai ele busca do arquivo de internacionalização. */
 	@OverridesAttribute(constraint = Pattern.class, name = "message")
-	String message() default "SKU deve seguir o padrão AA9999";
+	String message() default "{com.algaworks.constraints.SKU.message}";
 
 	Class<?>[] groups() default {};
 

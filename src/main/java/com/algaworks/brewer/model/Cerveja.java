@@ -39,10 +39,10 @@ public class Cerveja implements Serializable {
 
 //	@Pattern(regexp = "([a-zA-z]{2}\\d{4})?", message = "SKU deve seguir o padrão XX9999")
 	@SKU
-	@NotBlank(message = "SKU é obrigatório")
+	@NotBlank // Agora usa a mensagem internacionalizada.
 	private String sku;
 
-	@NotBlank(message = "Nome é obrigatório")
+	@NotBlank // Agora usa a mensagem internacionalizada.
 	private String nome;
 
 	@Size(min = 1, max = 50, message = "O tamanho da descrição deve estar entre 1 e 50")
