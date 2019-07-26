@@ -22,7 +22,8 @@
 					</a>
 
 					<ul class="aw-menu__list  aw-menu__list--sublist">
-						<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/vendas.*}">
+						<!-- O + indica que deve ter pelo menos mais 1 caracter. -->
+						<li class="aw-menu__item  aw-menu__item--link" brewer:menu="@{/vendas.+}">
 							<a th:href="@{/vendas/nova}">Cadastro de venda</a>
 						</li>
 
