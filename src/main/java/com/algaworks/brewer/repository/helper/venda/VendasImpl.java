@@ -1,10 +1,12 @@
 package com.algaworks.brewer.repository.helper.venda;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.algaworks.brewer.dto.VendaMes;
 import com.algaworks.brewer.model.StatusVenda;
 import com.algaworks.brewer.model.TipoPessoa;
 import com.algaworks.brewer.model.Venda;
@@ -99,7 +102,36 @@ public class VendasImpl implements VendasQueries {
         /* Se não encontrar nada, ai retorna 0. */
         return optional.orElse(BigDecimal.ZERO);
     }
-    
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<VendaMes> totalPorMes() {
+        /* A NamedQuery é a que defini lá no consultas-nativas.xml. Lá no JpaConfig, eu ensinei pra ele
+         * onde buscar esse arquivo. Se eu quiser, posso passar parâmetros para a NamedQuery igual faço com
+         * jpql, chamando o método setParameter(). */
+        List<VendaMes> vendasMes = manager.createNamedQuery("Vendas.totalPorMes").getResultList();
+
+        /* Tratamento para caso existir um mês que não tiver nenhuma venda. Aí o grafico vai ficar errado. */
+        LocalDate hoje = LocalDate.now();
+        /* Vai de 1 a 6, pois a consulta é dos últimos 6 meses. */
+        for (int i = 1; i <= 6; i++) {
+            /* Recria o label retornado da consulta, no mesmo formato (2016/08), para ver se esse mes existe. */
+            String mesIdeal = String.format("%d/%02d", hoje.getYear(), hoje.getMonthValue());
+
+            /* Percorre a lista, verificando se o mes existe. */
+            boolean possuiMes = vendasMes.stream().filter(v -> v.getMes().equals(mesIdeal)).findAny().isPresent();
+            /* Ai, se não possuir venda naquele mês, adiciona uma venda zerada, já na posição correta. */
+            if(!possuiMes) {
+                vendasMes.add(i-1, new VendaMes(mesIdeal, 0));
+            }
+
+            /* A cada iteração, decrementa um mês, até verificar se todos existem. */
+            hoje = hoje.minusMonths(1);
+        }
+
+        return vendasMes;
+    }
+
 	private Long total(VendaFilter filtro) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Venda.class);
 		adicionarFiltro(filtro, criteria);

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- entity-mappings pra gente fazer o mapeamento das consultas nesse arquivo. -->
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+	version="2.1">
+
+	<!-- Coloco minha consulta dentro da tag named-native-query e dou um nome para ela.
+	 Para fazer o mapeamento do resultado da consulta para um objeto java, usamos a tag
+	 result-set-mapping passando o nome referenciando um sql-result-set-mapping, onde
+	 dizemos qual é esse mapeamento. Essa consulta é usado lá no VendasImpl.-->
+	<named-native-query name="Vendas.totalPorMes" result-set-mapping="totalPorMesMapping">
+		<query>
+			SELECT 
+				  TO_CHAR(DATA_CRIACAO, 'YYYY/MM') MES
+	     		, COUNT(*) TOTAL
+			FROM VENDA
+			WHERE DATA_CRIACAO > (NOW() - INTERVAL '6 MONTH')	
+			AND STATUS = 'EMITIDA'
+			GROUP BY MES
+			ORDER BY MES desc
+		</query>
+	</named-native-query>
+
+	<sql-result-set-mapping name="totalPorMesMapping">
+		<!-- Com o constructor-result, digo que vou usar o construtor da minha target-class
+		para gerar o objeto em java. Dessa forma, ele já vai me devolver uma lista de objetos
+		com.algaworks.brewer.dto.VendaMes preenchidos. -->
+		<constructor-result target-class="com.algaworks.brewer.dto.VendaMes">
+			<column name="mes" class="java.lang.String"/>
+			<column name="total" class="java.lang.Integer"/>
+		</constructor-result>
+	</sql-result-set-mapping>
+
+</entity-mappings>
