@@ -27,8 +27,11 @@ import com.algaworks.brewer.validation.AtributoConfirmacao;
 @AtributoConfirmacao(atributo = "senha", atributoConfirmacao = "confirmacaoSenha", message = "Confirmação da senha não confere")
 @Entity
 @Table(name = "usuario")
-/* Quando atualizo somente um campo, ele manda somente esse campo no update. Sem isso, ele sempre
- * adiciona todos os campos, independente se foram atualizados ou não. */
+/*
+ * Quando atualizo somente um campo, ele manda somente esse campo no update. Sem
+ * isso, ele sempre adiciona todos os campos, independente se foram atualizados
+ * ou não.
+ */
 @DynamicUpdate
 public class Usuario implements Serializable {
 
@@ -70,11 +73,14 @@ public class Usuario implements Serializable {
 
 	@PreUpdate
 	private void preUpdate() {
-	    /* Quando estiver editando, coloca a confirmação de senha igual a senha,
-	     * pois se não, ele não deixa salvar o usuário por causa da annotation @AtributoConfirmacao. */
-	    this.confirmacaoSenha = senha;
+		/*
+		 * Quando estiver editando, coloca a confirmação de senha igual a senha, pois se
+		 * não, ele não deixa salvar o usuário por causa da
+		 * annotation @AtributoConfirmacao.
+		 */
+		this.confirmacaoSenha = senha;
 	}
-	
+
 	public Long getCodigo() {
 		return codigo;
 	}

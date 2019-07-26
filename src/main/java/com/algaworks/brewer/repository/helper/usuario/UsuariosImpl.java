@@ -81,6 +81,22 @@ public class UsuariosImpl implements UsuariosQueries {
 		return new PageImpl<>(filtrados, pageable, total(filtro));
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public Usuario buscarComGrupos(Long codigo) {
+
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);
+		criteria.createAlias("grupos", "g", JoinType.LEFT_OUTER_JOIN);
+		criteria.add(Restrictions.eq("codigo", codigo));
+		/*
+		 * Como temos vários grupos, podem vir várias rows. Ai eu digo que quero agrupar
+		 * em Usuario.
+		 */
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+		return (Usuario) criteria.uniqueResult();
+	}
+
 	/* Conta o total de linhas para o filtro informado. */
 	private Long total(UsuarioFilter filtro) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Usuario.class);

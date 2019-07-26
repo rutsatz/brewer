@@ -25,7 +25,8 @@ public class CadastroUsuarioService {
 	@Transactional
 	public void salvar(Usuario usuario) {
 		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
-		if (usuarioExistente.isPresent()) {
+
+		if (usuarioExistente.isPresent() && !usuarioExistente.get().equals(usuario)) {
 			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
 		}
 
@@ -33,23 +34,35 @@ public class CadastroUsuarioService {
 			throw new SenhaObrigatoriaUsuarioException("Senha é obrigatória  para novo usuário");
 		}
 
-		/* Criptografa a senha do usuário. */
-		if (usuario.isNovo()) {
+		/* Se é novo ou se informou a senha, precisa criptografar. */
+		if (usuario.isNovo() || !StringUtils.isEmpty(usuario.getSenha())) {
+			/* Criptografa a senha do usuário. */
 			usuario.setSenha(this.passwordEncoder.encode(usuario.getSenha()));
-			/*
-			 * Preciso setar a confirmacao da senha tbm, pois quando chega no JPA, ela tbm
-			 * executa os beans validations, e como eu alterei a senha, ele vai falhar ao
-			 * validar se as senhas conferem.
-			 */
-			usuario.setConfirmacaoSenha(usuario.getSenha());
+		} else if (StringUtils.isEmpty(usuario.getSenha())) {
+			usuario.setSenha(usuarioExistente.get().getSenha());
+		}
+
+		/*
+		 * Preciso setar a confirmacao da senha tbm, pois quando chega no JPA, ela tbm
+		 * executa os beans validations, e como eu alterei a senha, ele vai falhar ao
+		 * validar se as senhas conferem.
+		 */
+		usuario.setConfirmacaoSenha(usuario.getSenha());
+
+		/*
+		 * Tratramento para o botão de status, pois se é o mesmo usuário, ele esconde o
+		 * botão. Aí como ele vem com null, preciso setá-lo novamente, nesse caso.
+		 */
+		if (!usuario.isNovo() && usuario.getAtivo() == null) {
+			usuario.setAtivo(usuarioExistente.get().getAtivo());
 		}
 
 		usuarios.save(usuario);
 	}
-	
+
 	@Transactional
-    public void alterarStatus(Long[] codigos, StatusUsuario statusUsuario) {
-        statusUsuario.executar(codigos, usuarios);
-    }
+	public void alterarStatus(Long[] codigos, StatusUsuario statusUsuario) {
+		statusUsuario.executar(codigos, usuarios);
+	}
 
 }
