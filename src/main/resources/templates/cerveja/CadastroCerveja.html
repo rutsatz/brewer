@@ -160,6 +160,7 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 							url e depois consigo pegar no JS. -->
 						<div class="js-container-foto-cerveja" th:attr="data-url-fotos=@{/fotos}">
 							<div class="js-upload uk-placeholder uk-text-center">
+								<img th:src="@{/images/mini-loading.gif}" class="js-img-loading  hidden"/>
 	    						<span uk-icon="icon: cloud-upload"></span>
 	    						<span class="uk-text-middle">Arraste a foto aqui ou</span>
 	    						<div uk-form-custom>

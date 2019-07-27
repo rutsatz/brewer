@@ -22,6 +22,7 @@ Brewer.UploadFoto = (function() {
         this.containerFotoCerveja = $('.js-container-foto-cerveja');
 
         this.uploadDrop = $('.js-upload');
+        this.imgLoading = $('.js-img-loading');
         
 	}
 
@@ -33,7 +34,8 @@ Brewer.UploadFoto = (function() {
 			allow: '*.(jpg|jpeg|png)',
 			url: this.containerFotoCerveja.data('url-fotos'),
 			complete: onUploadCompleto.bind(this),
-			beforeSend: adicionarCsrfToken
+			beforeSend: adicionarCsrfToken,
+			loadStart: onLoadStart.bind(this)
 		}
 
 		/* Inicializa o componente. */
@@ -58,12 +60,19 @@ Brewer.UploadFoto = (function() {
 	    }
 	}
 
+	function onLoadStart() {
+		/* Mostra a animação de carregando. */
+		this.imgLoading.removeClass('hidden');
+	}
+
 	function onUploadCompleto(resposta) {
 
 		/** Aqui é uma foto nova. */
 		this.novaFoto.val('true');
 		/** Salva a url completa da foto. */
 		this.inputUrlFoto.val(resposta.response.url);
+		
+		this.imgLoading.addClass('hidden');
 		
 		renderizarFoto.call(this, resposta);
 	}
