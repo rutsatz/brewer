@@ -15,6 +15,8 @@ public class CervejaDTO {
 	private String origem;
 	private BigDecimal valor;
 	private String foto;
+	/* Nesse caso, preciso somente do thumbnail. */
+	private String urlThumbnailFoto;
 
 	/**
 	 * Cria o construtor que será usado no JPQL. Como a origem no banco ele está
@@ -77,6 +79,14 @@ public class CervejaDTO {
 
 	public void setFoto(String foto) {
 		this.foto = foto;
+	}
+
+	public String getUrlThumbnailFoto() {
+		return urlThumbnailFoto;
+	}
+
+	public void setUrlThumbnailFoto(String urlThumbnailFoto) {
+		this.urlThumbnailFoto = urlThumbnailFoto;
 	}
 
 }

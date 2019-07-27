@@ -2,6 +2,8 @@ package com.algaworks.brewer.config.init;
 
 import javax.servlet.Filter;
 import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration.Dynamic;
 
 import org.springframework.web.filter.HttpPutFormContentFilter;
@@ -69,6 +71,20 @@ public class AppInitializer extends AbstractAnnotationConfigDispatcherServletIni
 		 * o parâmetro location, deixamos o servidor usar as configurações default.
 		 */
 		registration.setMultipartConfig(new MultipartConfigElement(""));
+	}
+
+	/* Método chamado ao inciar a aplicação. */
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException {
+		/* Preciso deixar chamando o super, senão a aplicação para de funcionar. */
+		super.onStartup(servletContext);
+
+		/*
+		 * Configuro o profile default, caso não informar nenhum. Se eu informar outro
+		 * profile por parâmetro, esse aqui será sobrescrito.
+		 */
+		servletContext.setInitParameter("spring.profiles.default", "local");
+
 	}
 
 }

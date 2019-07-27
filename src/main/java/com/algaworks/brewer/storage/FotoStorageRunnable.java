@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.algaworks.brewer.dto.FotoDTO;
 
+/* Thread que faz o salvamento da foto no storage, para não travar o browser do cliente. */
 public class FotoStorageRunnable implements Runnable {
 
 	private MultipartFile[] files;
@@ -25,7 +26,7 @@ public class FotoStorageRunnable implements Runnable {
 		 * recuperar a foto quando for salvar, para conseguir mover da pasta temporária
 		 * para a pasta permanente.
 		 */
-		String nomeFoto = this.fotoStorage.salvarTemporariamente(files);
+		String nomeFoto = this.fotoStorage.salvar(files);
 		String contentType = files[0].getContentType();
 
 		/*
@@ -36,7 +37,7 @@ public class FotoStorageRunnable implements Runnable {
 		 * para responder so browser, que está esperando. Dessa forma, melhoro a
 		 * disponibilidade da minha aplicação.
 		 */
-		resultado.setResult(new FotoDTO(nomeFoto, contentType));
+		resultado.setResult(new FotoDTO(nomeFoto, contentType, fotoStorage.getUrl(nomeFoto)));
 
 	}
 }

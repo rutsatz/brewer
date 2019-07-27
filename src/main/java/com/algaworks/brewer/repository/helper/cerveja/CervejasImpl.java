@@ -21,6 +21,7 @@ import com.algaworks.brewer.dto.CervejaDTO;
 import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.repository.filter.CervejaFilter;
 import com.algaworks.brewer.repository.paginacao.PaginacaoUtil;
+import com.algaworks.brewer.storage.FotoStorage;
 
 /*
  * Implementação do meu filtro de Cervejas. O nome da classe deve ser esse. O
@@ -42,6 +43,9 @@ public class CervejasImpl implements CervejasQueries {
 
 	@Autowired
 	private PaginacaoUtil paginacaoUtil;
+
+	@Autowired
+	private FotoStorage fotoStorage;
 
 	/*
 	 * Podemos adicionar o @suppressWarnings pois é somente por causa do return do
@@ -116,6 +120,9 @@ public class CervejasImpl implements CervejasQueries {
 				+ "from Cerveja where lower(sku) like lower(:skuOuNome) or lower(nome) like lower(:skuOuNome)";
 		List<CervejaDTO> cervejasFiltradas = manager.createQuery(jpql, CervejaDTO.class)
 				.setParameter("skuOuNome", skuOuNome + "%").getResultList();
+		/* Adiciona a url dos thumbnails. */
+		cervejasFiltradas
+				.forEach(c -> c.setUrlThumbnailFoto(fotoStorage.getUrl(FotoStorage.THUMBNAIL_PREFIX + c.getFoto())));
 		return cervejasFiltradas;
 	}
 }

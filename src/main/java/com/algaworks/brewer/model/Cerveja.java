@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -25,8 +26,14 @@ import javax.validation.constraints.Size;
 
 import org.springframework.util.StringUtils;
 
+import com.algaworks.brewer.repository.listener.CervejaEntityListener;
 import com.algaworks.brewer.validation.SKU;
 
+/**
+ * O JPA irá chamar os métodos anotados dessa classe para cada entidade
+ * carregada lá do banco.
+ */
+@EntityListeners(CervejaEntityListener.class)
 @Entity
 @Table(name = "cerveja")
 public class Cerveja implements Serializable {
@@ -87,6 +94,15 @@ public class Cerveja implements Serializable {
 
 	@Transient
 	private boolean novaFoto;
+
+	@Transient
+	private String urlFoto;
+
+	/*
+	 * Como foi alterado para receber a url completa, foi adicionado esse atributo.
+	 */
+	@Transient
+	private String urlThumbnailFoto;
 
 	/* Executa esse método antes de inserir ou atualizar a entidade. */
 	@PrePersist
@@ -201,6 +217,22 @@ public class Cerveja implements Serializable {
 
 	public String getFotoOuMock() {
 		return !StringUtils.isEmpty(foto) ? foto : "cerveja-mock.png";
+	}
+
+	public String getUrlFoto() {
+		return urlFoto;
+	}
+
+	public void setUrlFoto(String urlFoto) {
+		this.urlFoto = urlFoto;
+	}
+
+	public String getUrlThumbnailFoto() {
+		return urlThumbnailFoto;
+	}
+
+	public void setUrlThumbnailFoto(String urlThumbnailFoto) {
+		this.urlThumbnailFoto = urlThumbnailFoto;
 	}
 
 	public boolean temFoto() {

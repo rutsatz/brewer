@@ -123,7 +123,8 @@ podemos colocar qualquer url, pq não é isso que ele usa para encontrar as regr
 						<td class="text-center">
 							<!-- {} indica que é uma variável a ser injetada na url. E essa variável
 							 é carregada com o foto= e passamos uma expressão do thymeleaf. -->
-							<img th:src="@{/fotos/thumbnail.{foto}(foto=${cerveja.fotoOuMock})}" class="img-responsive"/>
+<!-- 							<img th:src="@{/fotos/thumbnail.{foto}(foto=${cerveja.fotoOuMock})}" class="img-responsive"/> -->
+							<img th:src="${cerveja.urlThumbnailFoto}" class="img-responsive"/>
 						</td>
 						<td class="text-center" th:text="${cerveja.sku}">AA1234</td>
 						<td th:text="${cerveja.nome}">Cerveja Stella</td>
