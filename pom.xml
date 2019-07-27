@@ -73,14 +73,18 @@
 		<javax.mail.version>1.6.2</javax.mail.version>
 
 		<!-- AWS SDK - S3 -->
-<!-- 		<aws-java-sdk-s3.version>1.11.599</aws-java-sdk-s3.version> -->
+		<!-- <aws-java-sdk-s3.version>1.11.599</aws-java-sdk-s3.version> -->
 		<aws-java-sdk-s3.version>1.10.77</aws-java-sdk-s3.version>
+
+		<!-- Apache Commons DBCP -->
+		<!-- <commons-dbcp2.version>2.6.0</commons-dbcp2.version> -->
+		<commons-dbcp2.version>2.1.1</commons-dbcp2.version>
 	</properties>
 
 	<build>
 
 		<!-- <finalName>${artifactId}-${version}</finalName> -->
-		<finalName>${artifactId}</finalName>
+		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
 			<plugin>
@@ -108,8 +112,68 @@
 				</configuration>
 			</plugin>
 
+			<!-- Plugin do heroku para fazer o deploy com o WebApp Runner. Ele copia 
+				o runner para dentro do nosso app. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.github.jsimone</groupId>
+									<artifactId>webapp-runner</artifactId>
+									<!-- <version>9.0.20.0</version> -->
+									<version>8.5.41.1</version>
+									<!-- <version>8.0.30.2</version> -->
+									<destFileName>webapp-runner.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
+
+	<!-- Crio profiles diferentes para empacotar minha aplicação. Se ela estiver 
+		rodando local, eu não preciso empacotar o driver do mysql (colocamos ele 
+		na pasta lib lá no tomcat) e nem o dbcp2. Agora em produção, como vamos usar 
+		um plugin pra gerar um .jar pra fazer o deploy no heroku, ai vou precisar 
+		empacotá-los junto. Os nomes usados no id do profile, apesar de serem iguais 
+		aos profiles que usamos no spring, não são os mesmos. Eles são ativados de 
+		formas diferentes. No spring, passamos por parâmetro quando a aplicação está 
+		subindo, depois de compilada. O profile do pom, passamos quando ele vai compilar. -->
+	<profiles>
+		<!-- Para compilar usando o profile local, eu posso usar o mvn clean package 
+			-Plocal, onde local é o nome do profile. -->
+		<profile>
+			<id>local</id>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+
+			<!-- O heroku, quando empacotar a aplicação, ele vai usar o comando mvn 
+				clean package, ou seja, não vai passar um profile. Então preciso definir 
+				um default. Faço isso com o activation. -->
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<!-- Aqui adiciono as dependencias com scope compile que quero que sejam 
+				empacotadas junto para um deploy em produção. -->
+			<dependencies>
+
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -334,6 +398,13 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-s3</artifactId>
 			<version>${aws-java-sdk-s3.version}</version>
+		</dependency>
+
+		<!-- Apache Commons DBCP -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>${commons-dbcp2.version}</version>
 		</dependency>
 
 

@@ -35,7 +35,7 @@ import com.algaworks.brewer.mail.Mailer;
  * erro, devo passar o parâmetro ignoreResourceNotFound. Consequentemente, não
  * usar os parâmetros do arquivo anterior.
  */
-@PropertySource(value = { "file://${HOME}/.brewer-mail22222.properties" }, ignoreResourceNotFound = true)
+@PropertySource(value = { "file://${HOME}/.brewer-mail.properties" }, ignoreResourceNotFound = true)
 public class MailConfig {
 
 	@Autowired
@@ -48,7 +48,13 @@ public class MailConfig {
 		mailSender.setHost("smtp.mailgun.org");
 		mailSender.setPort(587);
 		mailSender.setUsername(env.getProperty("mail.username"));
-		mailSender.setPassword(env.getProperty("password"));
+//		mailSender.setPassword(env.getProperty("password"));
+		/*
+		 * Se estiver usando o profile local, do arquivo, ai usa do arquivo. Agora, em
+		 * prod, como não vai existir esse parâmetro no arquivo, ele vai buscar das
+		 * variáveis de ambiente. 
+		 */
+		mailSender.setPassword(env.getProperty("MAILGUN_PASSWORD"));
 
 		Properties props = new Properties();
 		props.put("mail.transport.protocol", "smtp");
