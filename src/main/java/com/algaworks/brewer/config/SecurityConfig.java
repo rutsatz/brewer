@@ -159,12 +159,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				 */
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")).and()
 				/* Faz o tratamento das exceções, como acesso negado, por exemplo. */
-				.exceptionHandling()
+//				.exceptionHandling()
 				/*
 				 * Adiciona a url que o usuário deve ser encaminhado em caso de acesso negado.
 				 * Eu preciso ter essa página mapeada. (Colocamos no SegurancaController)
 				 */
-				.accessDeniedPage("/403").and()
+//				.accessDeniedPage("/403").and()
 				/* Configurações relacionadas a sessão. */
 				.sessionManagement()
 				/*

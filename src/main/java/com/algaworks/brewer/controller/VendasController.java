@@ -75,10 +75,10 @@ public class VendasController {
 	 * analisando todos os métodos do controller. Então digo que ele deve aplicar a
 	 * validação somente para os parametros "venda".
 	 */
-	@InitBinder("venda")
-	public void inicializarValidador(WebDataBinder binder) {
-		binder.setValidator(vendaValidator);
-	}
+//	@InitBinder("venda")
+//	public void inicializarValidador(WebDataBinder binder) {
+//		binder.setValidator(vendaValidator);
+//	}
 
 	@GetMapping("/nova")
 	public ModelAndView nova(Venda venda) {
@@ -232,7 +232,9 @@ public class VendasController {
 		try {
 			cadastroVendaService.cancelar(venda);
 		} catch (AccessDeniedException e) {
-			return new ModelAndView("/403");
+			ModelAndView mv = new ModelAndView("error");
+			mv.addObject("status", 403);
+			return mv;
 		}
 
 		attributes.addFlashAttribute("mensagem", "Venda cancelada com sucesso");
