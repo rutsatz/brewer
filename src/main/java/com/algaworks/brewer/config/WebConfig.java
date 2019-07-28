@@ -3,7 +3,7 @@ package com.algaworks.brewer.config;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
-import javax.cache.CacheManager;
+import org.springframework.cache.CacheManager;
 import javax.cache.Caching;
 
 import org.springframework.beans.BeansException;
@@ -29,7 +29,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
+//import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring5.ISpringTemplateEngine;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
@@ -63,14 +63,14 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
  * Estou adicionado para o ApplicationContext pesquisar, no contexto Web, as
  * classes dos pacotes controller e session.
  */
-@ComponentScan(basePackageClasses = { CervejasController.class, TabelasItensSession.class })
+//@ComponentScan(basePackageClasses = { CervejasController.class, TabelasItensSession.class })
 /* Habilita os recursos Web do Spring. */
-@EnableWebMvc
+//@EnableWebMvc
 /*
  * Adiciona suporte a alguns recursos do SpringData, relacionadas a parte Web,
  * como por exemplo, habilita o suporte do Pageable.
  */
-@EnableSpringDataWebSupport
+//@EnableSpringDataWebSupport
 /*
  * Habilita o cache no servidor, podendo deixar consultas na memória do
  * servidor, por exemplo. Preciso configurar o CacheManager.
@@ -81,111 +81,111 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
  * com @Async.
  */
 @EnableAsync
-public class WebConfig implements ApplicationContextAware, WebMvcConfigurer {
+public class WebConfig implements WebMvcConfigurer {
 
-	private ApplicationContext applicationContext;
+//	private ApplicationContext applicationContext;
+//
+//	@Override
+//	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+//		this.applicationContext = applicationContext;
+//	}
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
+//	@Bean
+//	public ViewResolver viewResolver() {
+//		ThymeleafViewResolver resolver = new ThymeleafViewResolver();
+//		resolver.setTemplateEngine(templateEngine());
+//		
+//		resolver.setCharacterEncoding("UTF-8");
+//
+//		/*
+//		 * Coloco o view resolver do Spring em segundo. Verifica primeiro o relatório.
+//		 */
+//		resolver.setOrder(1);
+//
+//		return resolver;
+//	}
 
-	@Bean
-	public ViewResolver viewResolver() {
-		ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-		resolver.setTemplateEngine(templateEngine());
-		
-		resolver.setCharacterEncoding("UTF-8");
+//	@Bean
+//	public TemplateEngine templateEngine() {
+//		SpringTemplateEngine engine = new SpringTemplateEngine();
+//		engine.setEnableSpringELCompiler(true);
+//		engine.setTemplateResolver(templateResolver());
+//
+//		engine.addDialect(new LayoutDialect());
+//		/* Registra o nosso próprio dialeto. */
+//		engine.addDialect(new BrewerDialect());
+//		/*
+//		 * Adiciona o dialeto do spring security extras do thymeleaf, que vem com alguns
+//		 * recursos para trabalhar com o security, como por exemplo, mostrar o nome do
+//		 * usuário logado. Eu posso pegar o usuário através do #authentication lá na
+//		 * view, que é um objeto que essa lib adiciona pra gente.
+//		 */
+//		engine.addDialect(new SpringSecurityDialect());
+//
+//		/* Lib para permitir adicionar atributos do tipo data de forma mais fácil. */
+//		engine.addDialect(new DataAttributeDialect());
+//		return engine;
+//	}
 
-		/*
-		 * Coloco o view resolver do Spring em segundo. Verifica primeiro o relatório.
-		 */
-		resolver.setOrder(1);
+//	private ITemplateResolver templateResolver() {
+//		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+//		resolver.setApplicationContext(applicationContext);
+//		resolver.setPrefix("classpath:/templates/");
+//		resolver.setSuffix(".html");
+//		resolver.setTemplateMode(TemplateMode.HTML);
+//		return resolver;
+//	}
 
-		return resolver;
-	}
+//	@Override
+//	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
+//	}
 
-	@Bean
-	public TemplateEngine templateEngine() {
-		SpringTemplateEngine engine = new SpringTemplateEngine();
-		engine.setEnableSpringELCompiler(true);
-		engine.setTemplateResolver(templateResolver());
-
-		engine.addDialect(new LayoutDialect());
-		/* Registra o nosso próprio dialeto. */
-		engine.addDialect(new BrewerDialect());
-		/*
-		 * Adiciona o dialeto do spring security extras do thymeleaf, que vem com alguns
-		 * recursos para trabalhar com o security, como por exemplo, mostrar o nome do
-		 * usuário logado. Eu posso pegar o usuário através do #authentication lá na
-		 * view, que é um objeto que essa lib adiciona pra gente.
-		 */
-		engine.addDialect(new SpringSecurityDialect());
-
-		/* Lib para permitir adicionar atributos do tipo data de forma mais fácil. */
-		engine.addDialect(new DataAttributeDialect());
-		return engine;
-	}
-
-	private ITemplateResolver templateResolver() {
-		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-		resolver.setApplicationContext(applicationContext);
-		resolver.setPrefix("classpath:/templates/");
-		resolver.setSuffix(".html");
-		resolver.setTemplateMode(TemplateMode.HTML);
-		return resolver;
-	}
-
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
-	}
-
-	/** Permite implementar uns serviços de conversão customizados. */
-	@Bean
-	public FormattingConversionService mvcConversionService() {
-		DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
-		conversionService.addConverter(new EstiloConverter());
-		conversionService.addConverter(new CidadeConverter());
-		conversionService.addConverter(new EstadoConverter());
-		conversionService.addConverter(new GrupoConverter());
-
-		/*
-		 * Sempre informo o pattern de conversão no padrão internacional. Mas quando ele
-		 * for converter, ele considera o idioma do usuário.
-		 *
-		 * Como ele utiliza o locale do usuário, enviado no header, vai dar problema,
-		 * pois a formatação dos números, eu quero manter no padrão brasileiro,
-		 * indiferente do idioma do usuário. Ai eu customizo criando meus próprios
-		 * formatters.
-		 */
-//		NumberStyleFormatter numberStyleFormatter = new NumberStyleFormatter("#,##0.00");
-//		conversionService.addFormatterForFieldType(BigDecimal.class, numberStyleFormatter);
-//		NumberStyleFormatter integerFormatter = new NumberStyleFormatter("#,##0");
-//		conversionService.addFormatterForFieldType(Integer.class, integerFormatter);
-
-		/* Crio meus próprios formatters para resolver os problemas acima. */
-		BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter("#,##0.00");
-		conversionService.addFormatterForFieldType(BigDecimal.class, bigDecimalFormatter);
-		/* E para o integer, eu posso usar o mesmo, somente mudo o pattern. */
-		BigDecimalFormatter integerFormatter = new BigDecimalFormatter("#,##0");
-		conversionService.addFormatterForFieldType(BigDecimal.class, integerFormatter);
-
-		// API de datas do Java 8
-		/* Registra o conversor para campos do tipo LocalDate. */
-		DateTimeFormatterRegistrar dateTimeFormatter = new DateTimeFormatterRegistrar();
-		/*
-		 * Registra os conversores de Data e hora, para que possa recebê-los formatados
-		 * lá da minha view. Pois o input vai mandar a String no formato com a mascara
-		 * que está definida pelo maskmoney.
-		 */
-		dateTimeFormatter.setDateFormatter(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		dateTimeFormatter.setTimeFormatter(DateTimeFormatter.ofPattern("HH:mm"));
-		/* Registro o formatador de datas no meu conversionService. */
-		dateTimeFormatter.registerFormatters(conversionService);
-
-		return conversionService;
-	}
+//	/** Permite implementar uns serviços de conversão customizados. */
+//	@Bean
+//	public FormattingConversionService mvcConversionService() {
+//		DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService();
+//		conversionService.addConverter(new EstiloConverter());
+//		conversionService.addConverter(new CidadeConverter());
+//		conversionService.addConverter(new EstadoConverter());
+//		conversionService.addConverter(new GrupoConverter());
+//
+//		/*
+//		 * Sempre informo o pattern de conversão no padrão internacional. Mas quando ele
+//		 * for converter, ele considera o idioma do usuário.
+//		 *
+//		 * Como ele utiliza o locale do usuário, enviado no header, vai dar problema,
+//		 * pois a formatação dos números, eu quero manter no padrão brasileiro,
+//		 * indiferente do idioma do usuário. Ai eu customizo criando meus próprios
+//		 * formatters.
+//		 */
+////		NumberStyleFormatter numberStyleFormatter = new NumberStyleFormatter("#,##0.00");
+////		conversionService.addFormatterForFieldType(BigDecimal.class, numberStyleFormatter);
+////		NumberStyleFormatter integerFormatter = new NumberStyleFormatter("#,##0");
+////		conversionService.addFormatterForFieldType(Integer.class, integerFormatter);
+//
+//		/* Crio meus próprios formatters para resolver os problemas acima. */
+//		BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter("#,##0.00");
+//		conversionService.addFormatterForFieldType(BigDecimal.class, bigDecimalFormatter);
+//		/* E para o integer, eu posso usar o mesmo, somente mudo o pattern. */
+//		BigDecimalFormatter integerFormatter = new BigDecimalFormatter("#,##0");
+//		conversionService.addFormatterForFieldType(BigDecimal.class, integerFormatter);
+//
+//		// API de datas do Java 8
+//		/* Registra o conversor para campos do tipo LocalDate. */
+//		DateTimeFormatterRegistrar dateTimeFormatter = new DateTimeFormatterRegistrar();
+//		/*
+//		 * Registra os conversores de Data e hora, para que possa recebê-los formatados
+//		 * lá da minha view. Pois o input vai mandar a String no formato com a mascara
+//		 * que está definida pelo maskmoney.
+//		 */
+//		dateTimeFormatter.setDateFormatter(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+//		dateTimeFormatter.setTimeFormatter(DateTimeFormatter.ofPattern("HH:mm"));
+//		/* Registro o formatador de datas no meu conversionService. */
+//		dateTimeFormatter.registerFormatters(conversionService);
+//
+//		return conversionService;
+//	}
 
 	/*
 	 * Força o sistema a sempre usar o padrão do Brasil pras conversões,
@@ -230,17 +230,17 @@ public class WebConfig implements ApplicationContextAware, WebMvcConfigurer {
 		 * arquivo.
 		 */
 		return new JCacheCacheManager(Caching.getCachingProvider()
-				.getCacheManager(getClass().getResource("/cache/ehcache.xml").toURI(), getClass().getClassLoader()));
+				.getCacheManager(getClass().getResource("/env/ehcache.xml").toURI(), getClass().getClassLoader()));
 	}
 
-	@Bean
-	public MessageSource messageSource() {
-		ReloadableResourceBundleMessageSource bundle = new ReloadableResourceBundleMessageSource();
-		/* Configura para buscar umas mensagens. Não precisa colocar o .properties. */
-		bundle.setBasename("classpath:/messages");
-		bundle.setDefaultEncoding("UTF-8"); // https://www.utf8-chartable.de/
-		return bundle;
-	}
+//	@Bean
+//	public MessageSource messageSource() {
+//		ReloadableResourceBundleMessageSource bundle = new ReloadableResourceBundleMessageSource();
+//		/* Configura para buscar umas mensagens. Não precisa colocar o .properties. */
+//		bundle.setBasename("classpath:/messages");
+//		bundle.setDefaultEncoding("UTF-8"); // https://www.utf8-chartable.de/
+//		return bundle;
+//	}
 
 	/**
 	 * Configura a integração das minhas classes de domínio (meu model), para
@@ -250,32 +250,32 @@ public class WebConfig implements ApplicationContextAware, WebMvcConfigurer {
 	 * que estou recebendo o código de uma cerveja e ele já faz isso pra mim. Mas
 	 * pra isso funcionar, eu preciso configurar esse método.
 	 */
-	@Bean
-	public DomainClassConverter<FormattingConversionService> domainClassConverter() {
-		return new DomainClassConverter<FormattingConversionService>(mvcConversionService());
-	}
+//	@Bean
+//	public DomainClassConverter<FormattingConversionService> domainClassConverter() {
+//		return new DomainClassConverter<FormattingConversionService>(mvcConversionService());
+//	}
 
 	/*
 	 * Para poder usar as mensagens de internacionalização no BeanValidator, preciso
 	 * adicionar esse Bean e sobrescrever o método getValidator().
 	 */
-	@Bean
-	public LocalValidatorFactoryBean validator() {
-		LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
-		/* Dizemos onde que estão as mensagens de validação. */
-		validatorFactoryBean.setValidationMessageSource(messageSource());
-
-		return validatorFactoryBean;
-	}
+//	@Bean
+//	public LocalValidatorFactoryBean validator() {
+//		LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
+//		/* Dizemos onde que estão as mensagens de validação. */
+//		validatorFactoryBean.setValidationMessageSource(messageSource());
+//
+//		return validatorFactoryBean;
+//	}
 
 	/*
 	 * Sobrescreve esse método para configurar os arquivos de internacionalização,
 	 * para ser possível internacionalizar as mensagens de validação do
 	 * BeanValidation.
 	 */
-	@Override
-	public Validator getValidator() {
-		return validator();
-	}
+//	@Override
+//	public Validator getValidator() {
+//		return validator();
+//	}
 
 }

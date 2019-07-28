@@ -4,17 +4,14 @@ import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import com.algaworks.brewer.mail.Mailer;
-
 @Configuration
-@ComponentScan(basePackageClasses = Mailer.class)
+//@ComponentScan(basePackageClasses = Mailer.class)
 /*
  * Carrego um arquivo de properties que está dentro do projeto. Ele vai carregar
  * dentro da classe Environment.Dessa forma, carrego sempre fixo.
@@ -26,7 +23,7 @@ import com.algaworks.brewer.mail.Mailer;
  * variável que uso para compor o nome do arquivo. E se eu não informar nenhum
  * ambiente, eu digo que o local é o default.
  */
-@PropertySource({ "classpath:env/mail-${ambiente:local}.properties" })
+//@PropertySource({ "classpath:env/mail-${ambiente:local}.properties" })
 /*
  * Carrego as properties através de um arquivo externo a aplicação. A partir do
  * java8, posso colocar duas anotações repetidas, que ai ele vai sobrescrevendo
@@ -52,7 +49,7 @@ public class MailConfig {
 		/*
 		 * Se estiver usando o profile local, do arquivo, ai usa do arquivo. Agora, em
 		 * prod, como não vai existir esse parâmetro no arquivo, ele vai buscar das
-		 * variáveis de ambiente. 
+		 * variáveis de ambiente.
 		 */
 		mailSender.setPassword(env.getProperty("MAILGUN_PASSWORD"));
 

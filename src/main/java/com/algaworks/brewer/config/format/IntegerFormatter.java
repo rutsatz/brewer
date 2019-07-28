@@ -1,6 +1,5 @@
 package com.algaworks.brewer.config.format;
 
-import java.math.BigDecimal;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BigDecimalFormatter extends NumberFormatter<BigDecimal> {
+public class IntegerFormatter extends NumberFormatter<Integer> {
 
 	@Autowired
 	private Environment env;
@@ -19,8 +18,7 @@ public class BigDecimalFormatter extends NumberFormatter<BigDecimal> {
 		 * Aqui não preciso do Locale na mascára de numeros, pois ela não muda entre
 		 * Locale. Eu uso o Locale lá na hora de fazer os parses já.
 		 */
-//		String formato = 
-		return env.getProperty("bigdecimal.format", "#,##0.00");
+		return env.getProperty(env.getProperty("integer.format", "#,##0"));
 	}
 
 }

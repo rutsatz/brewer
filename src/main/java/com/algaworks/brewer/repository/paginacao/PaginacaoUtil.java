@@ -23,7 +23,7 @@ public class PaginacaoUtil {
 		criteria.setMaxResults(totalRegistrosPorPagina);
 
 		Sort sort = pageable.getSort();
-		if (sort != null) {
+		if (sort != null && sort.isSorted()) {
 			/*
 			 * Eu posso ordenar por mais de um parâmetro, por isso é uma lista. No nosso
 			 * caso, vai ter somente ordenação por um campo.
