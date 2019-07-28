@@ -2,8 +2,9 @@ package com.algaworks.brewer.config;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.BeansException;
 import org.springframework.cache.CacheManager;
@@ -19,18 +20,17 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.data.repository.support.DomainClassConverter;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
-import org.springframework.format.number.NumberStyleFormatter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.i18n.FixedLocaleResolver;
+import org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView;
+import org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -93,11 +93,55 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		this.applicationContext = applicationContext;
 	}
 
+	/*
+	 * Adiciona um novo ViewResolver para o JasperReport. Ele recebe um DataSouce do
+	 * javax.sql.
+	 */
+	@Bean
+	public ViewResolver jasperReportsViewResolver(DataSource dataSource) {
+		/* Objeto fornecido pelo Spring, pois ele já faz uma integração com o Jasper. */
+		JasperReportsViewResolver resolver = new JasperReportsViewResolver();
+
+		/*
+		 * Dá mesma forma que digo onde estão os templates do thymeleaf, preciso dizer
+		 * onde estão os relatórios.
+		 */
+		resolver.setPrefix("classpath:/relatorios/");
+		resolver.setSuffix(".jasper");
+		/*
+		 * Adicionei mais um view resolver, ai agora tem dois, o do thymeleaf e o do
+		 * jasper. E como o Spring vai saber qual que ele deve usar? Para isso, eu
+		 * configuro o view name abaixo, pois através dele o Spring consegue escolher.
+		 * Então todos os templates que derem match nessa view name, ele vai usar o
+		 * Jasper. Ai os relatorios eu sempre coloco o prefixo relatorio_.
+		 */
+		resolver.setViewNames("relatorio_*");
+
+		resolver.setViewClass(JasperReportsMultiFormatView.class);
+
+		resolver.setJdbcDataSource(dataSource);
+
+		/*
+		 * Como agora tenho dois view resolver, preciso configurar uma ordem, para dizer
+		 * qual o spring deve avaliar primeiro. Como o relatório é a exceção, coloco ele
+		 * por primeiro. Ai se não der match aqui, vai pro próximo.
+		 */
+		resolver.setOrder(0);
+
+		return resolver;
+	}
+
 	@Bean
 	public ViewResolver viewResolver() {
 		ThymeleafViewResolver resolver = new ThymeleafViewResolver();
 		resolver.setTemplateEngine(templateEngine());
 		resolver.setCharacterEncoding("UTF-8");
+
+		/*
+		 * Coloco o view resolver do Spring em segundo. Verifica primeiro o relatório.
+		 */
+		resolver.setOrder(1);
+
 		return resolver;
 	}
 
@@ -150,9 +194,10 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		 * Sempre informo o pattern de conversão no padrão internacional. Mas quando ele
 		 * for converter, ele considera o idioma do usuário.
 		 *
-		 * Como ele utiliza o locale do usuário, enviado no header, vai dar problema, pois
-		 * a formatação dos números, eu quero manter no padrão brasileiro, indiferente do
-		 * idioma do usuário. Ai eu customizo criando meus próprios formatters.
+		 * Como ele utiliza o locale do usuário, enviado no header, vai dar problema,
+		 * pois a formatação dos números, eu quero manter no padrão brasileiro,
+		 * indiferente do idioma do usuário. Ai eu customizo criando meus próprios
+		 * formatters.
 		 */
 //		NumberStyleFormatter numberStyleFormatter = new NumberStyleFormatter("#,##0.00");
 //		conversionService.addFormatterForFieldType(BigDecimal.class, numberStyleFormatter);
@@ -164,8 +209,8 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		conversionService.addFormatterForFieldType(BigDecimal.class, bigDecimalFormatter);
 		/* E para o integer, eu posso usar o mesmo, somente mudo o pattern. */
 		BigDecimalFormatter integerFormatter = new BigDecimalFormatter("#,##0");
-        conversionService.addFormatterForFieldType(BigDecimal.class, integerFormatter);
-		
+		conversionService.addFormatterForFieldType(BigDecimal.class, integerFormatter);
+
 		// API de datas do Java 8
 		/* Registra o conversor para campos do tipo LocalDate. */
 		DateTimeFormatterRegistrar dateTimeFormatter = new DateTimeFormatterRegistrar();
@@ -236,22 +281,27 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		return new DomainClassConverter<FormattingConversionService>(mvcConversionService());
 	}
 
-	/* Para poder usar as mensagens de internacionalização no BeanValidator, preciso adicionar
-	 * esse Bean e sobrescrever o método getValidator(). */
+	/*
+	 * Para poder usar as mensagens de internacionalização no BeanValidator, preciso
+	 * adicionar esse Bean e sobrescrever o método getValidator().
+	 */
 	@Bean
 	public LocalValidatorFactoryBean validator() {
-	    LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
-	    /* Dizemos onde que estão as mensagens de validação. */
-	    validatorFactoryBean.setValidationMessageSource(messageSource());
-	    
-	    return validatorFactoryBean;
+		LocalValidatorFactoryBean validatorFactoryBean = new LocalValidatorFactoryBean();
+		/* Dizemos onde que estão as mensagens de validação. */
+		validatorFactoryBean.setValidationMessageSource(messageSource());
+
+		return validatorFactoryBean;
 	}
 
-	/* Sobrescreve esse método para configurar os arquivos de internacionalização, para ser possível
-	 * internacionalizar as mensagens de validação do BeanValidation. */
+	/*
+	 * Sobrescreve esse método para configurar os arquivos de internacionalização,
+	 * para ser possível internacionalizar as mensagens de validação do
+	 * BeanValidation.
+	 */
 	@Override
 	public Validator getValidator() {
-	    return validator();
+		return validator();
 	}
 
 }

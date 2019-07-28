@@ -79,6 +79,10 @@
 		<!-- Apache Commons DBCP -->
 		<!-- <commons-dbcp2.version>2.6.0</commons-dbcp2.version> -->
 		<commons-dbcp2.version>2.1.1</commons-dbcp2.version>
+
+		<!-- JasperReports -->
+		<jasperreports.version>6.9.0</jasperreports.version>
+
 	</properties>
 
 	<build>
@@ -405,8 +409,22 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
 			<version>${commons-dbcp2.version}</version>
+			<scope>compile</scope>
 		</dependency>
 
+		<!-- JasperReports -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${jasperreports.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports-fonts</artifactId>
+			<version>${jasperreports.version}</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
