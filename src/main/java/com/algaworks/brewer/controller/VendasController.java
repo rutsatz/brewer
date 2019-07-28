@@ -166,7 +166,7 @@ public class VendasController {
 	 */
 	@PostMapping("/item")
 	public ModelAndView adicionarItem(Long codigoCerveja, String uuid) {
-		Cerveja cerveja = cervejas.findOne(codigoCerveja);
+		Cerveja cerveja = cervejas.findById(codigoCerveja).get();
 		tabelaItens.adicionarItem(uuid, cerveja, 1);
 
 		return mvTabelaItensVenda(uuid);
@@ -241,7 +241,7 @@ public class VendasController {
 
 	@GetMapping("/totalPorMes")
 	public @ResponseBody List<VendaMes> listarTotalVendaPorMes() {
-	    return vendas.totalPorMes();
+		return vendas.totalPorMes();
 	}
 
 	private ModelAndView mvTabelaItensVenda(String uuid) {

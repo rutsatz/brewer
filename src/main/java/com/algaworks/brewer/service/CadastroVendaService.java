@@ -19,7 +19,7 @@ public class CadastroVendaService {
 
 	@Autowired
 	private Vendas vendas;
-	
+
 	@Autowired
 	private ApplicationEventPublisher publisher;
 
@@ -33,7 +33,7 @@ public class CadastroVendaService {
 		if (venda.isNova()) {
 			venda.setDataCriacao(LocalDateTime.now());
 		} else {
-			Venda vendaExistente = vendas.findOne(venda.getCodigo());
+			Venda vendaExistente = vendas.findById(venda.getCodigo()).get();
 			venda.setDataCriacao(vendaExistente.getDataCriacao());
 		}
 
@@ -51,7 +51,7 @@ public class CadastroVendaService {
 	public void emitir(Venda venda) {
 		venda.setStatus(StatusVenda.EMITIDA);
 		salvar(venda);
-		
+
 		publisher.publishEvent(new VendaEvent(venda));
 	}
 
@@ -67,7 +67,7 @@ public class CadastroVendaService {
 	@Transactional
 	public void cancelar(Venda venda) {
 
-		Venda vendaExistente = vendas.findOne(venda.getCodigo());
+		Venda vendaExistente = vendas.findById(venda.getCodigo()).get();
 
 		vendaExistente.setStatus(StatusVenda.CANCELADA);
 		vendas.save(vendaExistente);

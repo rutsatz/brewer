@@ -2,14 +2,13 @@ package com.algaworks.brewer.config;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.TimeUnit;
 
-import javax.sql.DataSource;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 
 import org.springframework.beans.BeansException;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.guava.GuavaCacheManager;
+import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
@@ -28,14 +27,13 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView;
-import org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect;
-import org.thymeleaf.spring4.SpringTemplateEngine;
-import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring4.view.ThymeleafViewResolver;
+import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
+import org.thymeleaf.spring5.ISpringTemplateEngine;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
@@ -48,7 +46,6 @@ import com.algaworks.brewer.controller.converter.GrupoConverter;
 import com.algaworks.brewer.session.TabelasItensSession;
 import com.algaworks.brewer.thymeleaf.BrewerDialect;
 import com.github.mxab.thymeleaf.extras.dataattribute.dialect.DataAttributeDialect;
-import com.google.common.cache.CacheBuilder;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 
@@ -84,7 +81,7 @@ import nz.net.ultraq.thymeleaf.LayoutDialect;
  * com @Async.
  */
 @EnableAsync
-public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationContextAware {
+public class WebConfig implements ApplicationContextAware, WebMvcConfigurer {
 
 	private ApplicationContext applicationContext;
 
@@ -93,48 +90,11 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 		this.applicationContext = applicationContext;
 	}
 
-	/*
-	 * Adiciona um novo ViewResolver para o JasperReport. Ele recebe um DataSouce do
-	 * javax.sql.
-	 */
-	@Bean
-	public ViewResolver jasperReportsViewResolver(DataSource dataSource) {
-		/* Objeto fornecido pelo Spring, pois ele já faz uma integração com o Jasper. */
-		JasperReportsViewResolver resolver = new JasperReportsViewResolver();
-
-		/*
-		 * Dá mesma forma que digo onde estão os templates do thymeleaf, preciso dizer
-		 * onde estão os relatórios.
-		 */
-		resolver.setPrefix("classpath:/relatorios/");
-		resolver.setSuffix(".jasper");
-		/*
-		 * Adicionei mais um view resolver, ai agora tem dois, o do thymeleaf e o do
-		 * jasper. E como o Spring vai saber qual que ele deve usar? Para isso, eu
-		 * configuro o view name abaixo, pois através dele o Spring consegue escolher.
-		 * Então todos os templates que derem match nessa view name, ele vai usar o
-		 * Jasper. Ai os relatorios eu sempre coloco o prefixo relatorio_.
-		 */
-		resolver.setViewNames("relatorio_*");
-
-		resolver.setViewClass(JasperReportsMultiFormatView.class);
-
-		resolver.setJdbcDataSource(dataSource);
-
-		/*
-		 * Como agora tenho dois view resolver, preciso configurar uma ordem, para dizer
-		 * qual o spring deve avaliar primeiro. Como o relatório é a exceção, coloco ele
-		 * por primeiro. Ai se não der match aqui, vai pro próximo.
-		 */
-		resolver.setOrder(0);
-
-		return resolver;
-	}
-
 	@Bean
 	public ViewResolver viewResolver() {
 		ThymeleafViewResolver resolver = new ThymeleafViewResolver();
 		resolver.setTemplateEngine(templateEngine());
+		
 		resolver.setCharacterEncoding("UTF-8");
 
 		/*
@@ -240,23 +200,37 @@ public class WebConfig extends WebMvcConfigurerAdapter implements ApplicationCon
 	 * Configura o cache do servidor com o guava.
 	 */
 	@Bean
-	public CacheManager cacheManager() {
-		/*
-		 * Troquei a implementação do ConcurrentMapCache pelo Guava, e não preciso mexer
-		 * em mais nada, somente fornecer o novo ChacheManager.
-		 */
-		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-				/* Configura quantas entidades eu quero em cache. */
-				.maximumSize(3)
-				/*
-				 * Configura o tempo de validade do cache, sem ninguém usar. Se tiver alguém
-				 * usando, o tempo fica resetando.
-				 */
-				.expireAfterAccess(20, TimeUnit.SECONDS);
+	public CacheManager cacheManager() throws Exception {
+//		/*
+//		 * Troquei a implementação do ConcurrentMapCache pelo Guava, e não preciso mexer
+//		 * em mais nada, somente fornecer o novo ChacheManager.
+//		 */
+//		CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+//				/* Configura quantas entidades eu quero em cache. */
+//				.maximumSize(3)
+//				/*
+//				 * Configura o tempo de validade do cache, sem ninguém usar. Se tiver alguém
+//				 * usando, o tempo fica resetando.
+//				 */
+//				.expireAfterAccess(20, TimeUnit.SECONDS);
+//
+//		GuavaCacheManager cacheManager = new GuavaCacheManager();
+//		cacheManager.setCacheBuilder(cacheBuilder);
+//		return cacheManager;
 
-		GuavaCacheManager cacheManager = new GuavaCacheManager();
-		cacheManager.setCacheBuilder(cacheBuilder);
-		return cacheManager;
+		/*
+		 * JCache é a especificação de Cache do JEE e o EhCache é uma de suas
+		 * implementações. (Tipo JPA e Hibernate).
+		 *
+		 * Com essa configuração, a Api de Cache (JCache) vai encontrar a implementação
+		 * do EhCache. A API faz isso de forma automática pra gente, pois o EhCache
+		 * implementa a especificação do JCache. E as configurações eu passo por
+		 * parâmetro para o getCacheManager, através de um arquivo de conf. E passo um
+		 * segundo parâmetro, o ClassLoader, que é pra ele conseguir encontrar o nosso
+		 * arquivo.
+		 */
+		return new JCacheCacheManager(Caching.getCachingProvider()
+				.getCacheManager(getClass().getResource("/cache/ehcache.xml").toURI(), getClass().getClassLoader()));
 	}
 
 	@Bean
