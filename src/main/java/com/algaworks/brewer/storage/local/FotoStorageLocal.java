@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,10 @@ public class FotoStorageLocal implements FotoStorage {
 	private Path local;
 //	private Path localTemporario;
 
+	/* Recupera o valor lá do arquivo de properties. */
+	@Value("${brewer.foto-storage-local.url-base}")
+	private String urlBase;
+	
 	public FotoStorageLocal() {
 		this(FileSystems.getDefault().getPath(System.getenv("HOME"), ".brewerfotos"));
 	}
@@ -119,7 +124,7 @@ public class FotoStorageLocal implements FotoStorage {
 
 	@Override
 	public String getUrl(String foto) {
-		return "http://localhost:8080/brewer/fotos/" + foto;
+		return urlBase + foto;
 	}
 
 	private void criarPastas() {
