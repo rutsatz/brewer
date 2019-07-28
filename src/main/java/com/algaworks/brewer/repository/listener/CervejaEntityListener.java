@@ -9,9 +9,9 @@ import com.algaworks.brewer.model.Cerveja;
 import com.algaworks.brewer.storage.FotoStorage;
 
 public class CervejaEntityListener {
-
-	@Autowired
-	private FotoStorage fotoStorage;
+//
+//	@Autowired
+//	private FotoStorage fotoStorage;
 
 	/*
 	 * Para cada cerveja carregada do banco, chama esse método. A cerveja é final
@@ -27,10 +27,10 @@ public class CervejaEntityListener {
 		 * dessa classe para o contexto que eu passar, nesse caso, o this. Então ele vai
 		 * ver que o FotoStorage não existe, e vai injetar pra mim.
 		 */
-		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+//		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
-		cerveja.setUrlFoto(fotoStorage.getUrl(cerveja.getFotoOuMock()));
-		cerveja.setUrlThumbnailFoto(fotoStorage.getUrl(FotoStorage.THUMBNAIL_PREFIX + cerveja.getFotoOuMock()));
+		cerveja.setUrlFoto(FotoStorage.URL + cerveja.getFotoOuMock());
+		cerveja.setUrlThumbnailFoto(FotoStorage.URL + FotoStorage.THUMBNAIL_PREFIX + cerveja.getFotoOuMock());
 	}
 
 }

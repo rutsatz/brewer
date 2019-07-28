@@ -14,24 +14,24 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 
-@Configuration
-@PropertySource(value = { "file://${HOME}/.brewer-s3.properties" }, ignoreResourceNotFound = true)
-public class S3Config {
-
-	@Autowired
-	private Environment env;
-
-	@Bean
-	public AmazonS3 amazonS3() {
-		AWSCredentials credenciais = new BasicAWSCredentials(env.getProperty("AWS_ACCESS_KEY_ID"),
-				env.getProperty("AWS_SECRET_ACCESS_KEY"));
-
-		AmazonS3 amazonS3 = new AmazonS3Client(credenciais, new ClientConfiguration());
-		Region regiao = Region.getRegion(Regions.US_EAST_1);
-//		Region regiao = Region.getRegion(Regions.fromName("us-east-2"));
-		amazonS3.setRegion(regiao);
-		return amazonS3;
-
-	}
-
-}
+//@Configuration
+//@PropertySource(value = { "file://${HOME}/.brewer-s3.properties" }, ignoreResourceNotFound = true)
+//public class S3Config {
+//
+//	@Autowired
+//	private Environment env;
+//
+//	@Bean
+//	public AmazonS3 amazonS3() {
+//		AWSCredentials credenciais = new BasicAWSCredentials(env.getProperty("AWS_ACCESS_KEY_ID"),
+//				env.getProperty("AWS_SECRET_ACCESS_KEY"));
+//
+//		AmazonS3 amazonS3 = new AmazonS3Client(credenciais, new ClientConfiguration());
+//		Region regiao = Region.getRegion(Regions.US_EAST_1);
+////		Region regiao = Region.getRegion(Regions.fromName("us-east-2"));
+//		amazonS3.setRegion(regiao);
+//		return amazonS3;
+//
+//	}
+//
+//}

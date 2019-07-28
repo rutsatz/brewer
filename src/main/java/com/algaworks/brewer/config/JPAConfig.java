@@ -37,55 +37,6 @@ import com.algaworks.brewer.repository.Cervejas;
 @EnableTransactionManagement
 public class JPAConfig {
 
-	/*
-	 * Posso anotar beans com o profile tbm. Quero esse bean somente nesse profile.
-	 */
-	@Profile("local")
-	/*
-	 * Interessante quando formos fazer deploy em tomcat externo, pois lemos o
-	 * arquivo context do tomcat.
-	 */
-	@Bean
-	public DataSource dataSource() {
-		JndiDataSourceLookup dataSourceLookup = new JndiDataSourceLookup();
-		dataSourceLookup.setResourceRef(true);
-		/* Recuperamos através do JNDI name. */
-		return dataSourceLookup.getDataSource("jdbc/brewerDB");
-	}
-
-	/* Como estamos usando servidor na nuvem, vamos usar os profiles. */
-	@Profile("prod")
-	/*
-	 * Interessante quando formos fazer deploy em tomcat externo, pois lemos o
-	 * arquivo context do tomcat.
-	 */
-	@Bean
-	public DataSource dataSourceProd() throws URISyntaxException {
-
-		/*
-		 * Essa parte foi pego da documentação do HEROKU. Ele pega os dados dessa
-		 * variável de ambiente.
-		 */
-		URI dbUri = new URI(System.getenv("DATABASE_URL"));
-
-		String username = dbUri.getUserInfo().split(":")[0];
-		String password = dbUri.getUserInfo().split(":")[1];
-		String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath()
-				+ "?sslmode=require";
-
-		/*
-		 * Com posse dos dados, configuro meu dataSource. BasicDataSource lá do apache
-		 * commons dbcp2.
-		 */
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setUrl(dbUrl);
-		dataSource.setUsername(username);
-		dataSource.setPassword(password);
-		/* Configuro o tamanho do pool de conexões. */
-		dataSource.setInitialSize(10);
-		return dataSource;
-	}
-
 	@Bean
 	public JpaVendorAdapter jpaVendorAdapter() {
 		HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
